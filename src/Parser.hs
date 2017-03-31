@@ -73,7 +73,7 @@ data Binop = Add | Sub | Mul | Div
 --  --               , Stack :: Map (String, [Value])
 --   }
 
---remove whitsepace
+-- remove whitsepace
 spaceConsumer :: Parser ()
 spaceConsumer = L.space (void spaceChar) lineCmnt blockCmnt
   where lineCmnt  = L.skipLineComment "//"
@@ -83,42 +83,38 @@ spaceConsumer = L.space (void spaceChar) lineCmnt blockCmnt
 parseLexeme :: Parser a -> Parser a
 parseLexeme = L.lexeme spaceConsumer
 
-  -- | 'integer' parses an integer.
+-- symbol takes a string as argument and parses this string with whitespace after it
+parseSymbol :: String -> Parser String
+parseSymbol = L.symbol spaceConsumer
+
+  -- | 'parseInteger' parses an integer
 parseInteger :: Parser Integer
 parseInteger = parseLexeme L.integer
 
--- | Parse a Double
+-- | 'parseDouble' parses a double
 parseDouble :: Parser Double -- Megaparsec uses a double internally since float should be avoided in Haskell
 parseDouble = parseLexeme L.float
 
--- | Parse a Word
+-- | 'parseWord' parses a word
 parseWord :: Parser String 
 parseWord = parseLexeme $ (some alphaNumChar)
 
--- | Parses multiple words
+-- | 'parseWords' parses multiple words
 parseWords :: Parser [String]
 parseWords = some parseWord
 
--- symbol takes a string as argument and parses this string with whitespace after it
-symbol :: String -> Parser String
-symbol = L.symbol spaceConsumer
-
--- | Parse a Hashtag symbol
-hashtag :: Parser String
-hashtag = symbol "#"
+-- | 'parseHashtag' parses a hashtag symbol
+parseHashtag :: Parser String
+parseHashtag = parseSymbol "#"
 
 parseLabel :: Parser String
 parseLabel = (parseLexeme . try) (p)
   where
     p       = (:) <$> letterChar <*> many alphaNumChar
 
-
 -- | 'parens' parses something between parenthesis.
 parens :: Parser a -> Parser a
-parens = between (symbol "(") (symbol ")")
-
-
-
+parens = between (parseSymbol "(") (parseSymbol ")")
 
 
 --  parseInstruction :: String -> Parser ()
