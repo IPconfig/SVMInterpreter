@@ -224,10 +224,9 @@ parseLitInt = LitInt <$> parseInteger
 parseLitFloat :: Parser Literal
 parseLitFloat = LitFloat <$> parseDouble
 
+-- | Literal String
 parseLitString :: Parser Literal
-parseLitString = parseLexeme $ do 
-  stringChar <- some alphaNumChar
-  return $ LitString $ stringChar
+parseLitString = LitString <$> parseWord
 
 -- | Memory Adress
 -- | Memory adresses are defined as integer numbers enclosed by square brackets

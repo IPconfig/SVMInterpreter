@@ -37,6 +37,8 @@ spec =
         runParser parseLitInt "" "15" `shouldBe` Right (LitInt 15)
       it "returns a literal float/double" $ do
         runParser parseLitFloat "" "15.5" `shouldBe` Right (LitFloat 15.5)
+      it "returns a literal string" $ do
+        runParser parseLitString "" "sampleWord" `shouldBe` Right (LitString "sampleWord")
       it "returns a memory adress" $ do
         runParser parseMemoryAdress "" "[15]" `shouldBe` Right (LitAdress (LitInt 15))
       it "retuns a Register Reference" $ do
