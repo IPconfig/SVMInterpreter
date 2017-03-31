@@ -1,12 +1,11 @@
 {-# LANGUAGE GADTs, StandaloneDeriving #-}
 module Parser where
 
--- optimize String to Data.Text (not needed right now)
 import Control.Monad (void)
 import Text.Megaparsec -- megaparsec generates parsers and can chain them together
 import Text.Megaparsec.Expr
-import Text.Megaparsec.String -- input stream is of type ‘String’
-import Data.Char --Convert [Char] to Int with Ord
+import Text.Megaparsec.String -- input stream is of type ‘String’. We can optimize our parser by using Data.Text instead
+import Data.Char
 import qualified Text.Megaparsec.Lexer as L
 
 -- We change every instance of float in the AST to Double since Float should be avoided (see https://wiki.haskell.org/Performance/Floating_point)
@@ -64,15 +63,15 @@ deriving instance Eq (Instruction)
 data Binop = Add | Sub | Mul | Div
   deriving (Eq, Ord, Show)
 
-data SVM = SVM { memory :: [Value]
-                , reg1 :: Value
-                , reg2 :: Value
-                , reg3 :: Value
-                , reg4 :: Value
- --               , ProgramCounter :: Int
- --               , Labels :: Map(String, Int)
- --               , Stack :: Map (String, [Value])
-  }
+-- data SVM = SVM { memory :: [Value]
+--                 , reg1 :: Value
+--                 , reg2 :: Value
+--                 , reg3 :: Value
+--                 , reg4 :: Value
+--  --               , ProgramCounter :: Int
+--  --               , Labels :: Map(String, Int)
+--  --               , Stack :: Map (String, [Value])
+--   }
 
 --remove whitsepace
 spaceConsumer :: Parser ()
@@ -84,12 +83,43 @@ spaceConsumer = L.space (void spaceChar) lineCmnt blockCmnt
 parseLexeme :: Parser a -> Parser a
 parseLexeme = L.lexeme spaceConsumer
 
+  -- | 'integer' parses an integer.
+parseInteger :: Parser Integer
+parseInteger = parseLexeme L.integer
+
+-- | Parse a Double
+parseDouble :: Parser Double -- Megaparsec uses a double internally since float should be avoided in Haskell
+parseDouble = parseLexeme L.float
+
+-- | Parse a Word
 parseWord :: Parser String 
-parseWord = parseLexeme $ do 
-  _ <- char '<'
-  word <- some (alphaNumChar <|> char '-')
-  _ <- char '>'
-  return word
+parseWord = parseLexeme $ (some alphaNumChar)
+
+-- | Parses multiple words
+parseWords :: Parser [String]
+parseWords = some parseWord
+
+-- symbol takes a string as argument and parses this string with whitespace after it
+symbol :: String -> Parser String
+symbol = L.symbol spaceConsumer
+
+-- | Parse a Hashtag symbol
+hashtag :: Parser String
+hashtag = symbol "#"
+
+parseLabel :: Parser String
+parseLabel = (parseLexeme . try) (p)
+  where
+    p       = (:) <$> letterChar <*> many alphaNumChar
+
+
+-- | 'parens' parses something between parenthesis.
+parens :: Parser a -> Parser a
+parens = between (symbol "(") (symbol ")")
+
+
+
+
 
 --  parseInstruction :: String -> Parser ()
 --  parseInstruction word = string word *> notFollowedBy alphaNumChar *> spaceConsumer
@@ -104,50 +134,6 @@ parseInstruction = (parseLexeme . try) (p >>= check)
     check x = if x `elem` reservedInstructions
                 then return x
                 else fail $ "instruction " ++ show x ++ " is not reserved"
-
-
-
-
-
-
-
-
-
-
-parseWords :: Parser [String]
-parseWords = some parseWord
-
--- symbol takes a string as argument and parses this string with whitespace after it
-symbol :: String -> Parser String
-symbol = L.symbol spaceConsumer
-
--- | 'parens' parses something between parenthesis.
-
---parens :: Parser a -> Parser a
---parens = between (symbol "(") (symbol ")")
-
-
-  -- | 'integer' parses an integer.
-parseInteger :: Parser Integer
-parseInteger = parseLexeme L.integer
-
-parseFloat :: Parser Double
-parseFloat = parseLexeme L.float
-
-hashtag :: Parser String
-hashtag = symbol "#"
-
-
-
-parseLabel :: Parser String
-parseLabel = (parseLexeme . try) (p)
-  where
-    p       = (:) <$> letterChar <*> many alphaNumChar
-
-
--- | 'parens' parses something between parenthesis.
-parens :: Parser a -> Parser a
-parens = between (symbol "(") (symbol ")")
 
 
 
@@ -234,25 +220,19 @@ data Literal = LitInt Integer
 deriving instance Show (Literal)
 deriving instance Eq (Literal)
 
+-- | Literal Integer
 parseLitInt :: Parser Literal
-parseLitInt = parseLexeme $ do 
-  intChar <- some digitChar
-  return $ LitInt $ (read intChar)
+parseLitInt = LitInt <$> parseInteger
 
-parseLitInt' :: Parser Literal
-parseLitInt' = LitInt <$> parseInteger
-
-
-
+-- | Literal Float/Double
 parseLitFloat :: Parser Literal
-parseLitFloat = parseLexeme $ do 
-  floatChar <- L.float
-  return $ LitFloat $ floatChar
+parseLitFloat = LitFloat <$> parseDouble
 
 parseLitString :: Parser Literal
 parseLitString = parseLexeme $ do 
   stringChar <- some alphaNumChar
   return $ LitString $ stringChar
+
 -- | Memory Adress
 -- | Memory adresses are defined as integer numbers enclosed by square brackets
 -- | FE: [100], which means “the memory location at index 100”.
