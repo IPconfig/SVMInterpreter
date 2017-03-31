@@ -4,6 +4,9 @@ import Test.Hspec
 import Text.Megaparsec
 import Parser
 
+main :: IO ()
+main = hspec spec
+
 spec :: Spec
 spec =
   describe "The building blocks of the parser" $ do
