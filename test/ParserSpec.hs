@@ -33,6 +33,10 @@ spec =
         runParser parseLabel "" "if2" `shouldBe` Right "if2"
 
     describe "with literals" $ do
+      it "returns a literal int" $ do
+        runParser parseLitInt "" "15" `shouldBe` Right (LitInt 15)
+      it "returns a literal float/double" $ do
+        runParser parseLitFloat "" "15.5" `shouldBe` Right (LitFloat 15.5)
       it "returns a memory adress" $ do
         runParser parseMemoryAdress "" "[15]" `shouldBe` Right (LitAdress (LitInt 15))
       it "retuns a Register Reference" $ do
