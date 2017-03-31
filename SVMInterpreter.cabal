@@ -1,0 +1,48 @@
+name:                SVMInterpreter
+version:             0.1.0.0
+-- synopsis:
+-- description:
+homepage:            https://github.com/githubuser/SVMInterpreter
+license:             BSD3
+license-file:        LICENSE
+author:              Justin de Haan
+maintainer:          0831777@hr.nl
+copyright:           2017 Justin de Haan
+category:            Acme
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+tested-with:         GHC == 7.10.2
+
+library
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+  hs-source-dirs:      src
+  exposed-modules:     Lib
+                     , Parser
+  build-depends:       base >= 4.7 && < 5
+                     , megaparsec
+
+executable SVMInterpreter
+  default-language:    Haskell2010
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  build-depends:       base
+                     , SVMInterpreter
+
+test-suite spec
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  build-depends:       base
+                     , SVMInterpreter
+                     , hspec
+                     , QuickCheck
+                     , megaparsec
+
+source-repository head
+  type:     git
+  location: https://github.com/githubuser/SVMInterpreter
