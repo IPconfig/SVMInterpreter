@@ -19,60 +19,6 @@ data Register = Reg1 Value
 deriving instance Show (Register)
 deriving instance Eq (Register)
 
--- Data structures representing the constant values of the language. 
--- Address may contain the Integer representing the memory address or the register from which the address is read.
--- data Literal = LInt Integer
---              | LFloat Float
---              | LString String
---              | LAdress Literal
---              | LRegister Register
--- deriving instance Show (Literal)
--- deriving instance Eq (Literal)
-
--- Instructions supported by the SVM. See the documentation for further details.            
--- We still need address and Register somewhere            
-data Instruction = Nop
-                   | Neg Instruction
---                   | Literal Literal
---                   | Register Register
-
---                 | Mov Literal Literal
---                 | And Register Literal
---                 | Or Register Literal
---                 | Not Register
---                 | Mod Register Literal
-                   | Var String
-                   | IntConst Integer
-                   | FloatConst Float
-                   | Op Binop Instruction Instruction
-
---                   | Add2 Register Literal
---                 | Sub Register Literal
---                 | Mul Register Literal
---                 | Div Register Literal
-
---                 | Cmp Register Literal
---                 | Jmp String
---                 | Jc String Register
---                 | Jeq String Register
---                 | Label String
-                   | Program [Instruction]
-deriving instance Show (Instruction)
-deriving instance Eq (Instruction)
-
-data Binop = Add | Sub | Mul | Div
-  deriving (Eq, Ord, Show)
-
--- data SVM = SVM { memory :: [Value]
---                 , reg1 :: Value
---                 , reg2 :: Value
---                 , reg3 :: Value
---                 , reg4 :: Value
---  --               , ProgramCounter :: Int
---  --               , Labels :: Map(String, Int)
---  --               , Stack :: Map (String, [Value])
---   }
-
 -- remove whitsepace
 spaceConsumer :: Parser ()
 spaceConsumer = L.space (void spaceChar) lineCmnt blockCmnt
@@ -119,6 +65,8 @@ parens = between (parseSymbol "(") (parseSymbol ")")
 
 --  parseInstruction :: String -> Parser ()
 --  parseInstruction word = string word *> notFollowedBy alphaNumChar *> spaceConsumer
+
+
 
 reservedInstructions :: [String] -- list of reserved words
 reservedInstructions = ["nop","mov","and","or","not","mod","add","sub","mul","div","cmp", "jmp", "jc", "jeq"]
@@ -241,6 +189,7 @@ parseMemoryAdress = parseLexeme $ do
 -- | Register Reference
 -- | they are used when a register contains an integer number representing the address of a memory location, rather than a value. They are defined by enclosing the register keyword with square brackets. 
 -- | FE: [reg1] means “the content of the memory address stored in 'reg1'" -> if the register contains the value 1000, this will use the content of the memory location at 1000.
+
 parseRegisterReference :: Parser Literal
 parseRegisterReference = parseLexeme $ do
     _ <- char '['
@@ -256,14 +205,47 @@ parseRegisterReference = parseLexeme $ do
 parseMemoryAdressOrReference :: Parser Literal
 parseMemoryAdressOrReference = try parseMemoryAdress <|> parseRegisterReference
 
+-- | 'reservedRegisters' contains a list of reserved registers
+reservedRegisters :: [String]
+reservedRegisters = ["reg1","reg2","reg3","reg4"]
+
 -- | they are simply denoted with the keywords reg1, reg2, reg3, and reg4
-parseLitRegister :: Parser Literal
-parseLitRegister = undefined
--- LitRegister
+-- parseLitRegister :: Parser Literal
+--parseLitRegister = (parseLexeme . try) (p >>= check)
+ -- where
+ --   p       = (:) <$> letterChar <*> many alphaNumChar
+ --   check x = if x `elem` reservedRegisters
+ --             then return $ LitRegister $ (Reg1 (Value x)) --Fix this mess
+ --             else fail $ "Register " ++ show x ++ " is not reserved and thus invalid"
+
 
 -- | parse all literal data structures
 parseLiterals :: Parser Literal
-parseLiterals = choice [parseMemoryAdressOrReference 
-                        , parseLitString
-                        , parseLitFloat
-                        , parseLitInt ]
+parseLiterals = try parseMemoryAdressOrReference <|> parseLitRegister <|> parseLitString <|> parseLitFloat <|> parseLitInt 
+
+
+-- Instructions supported by the SVM. See the documentation for further details.            
+-- We still need address and Register somewhere            
+data Instruction = Nop
+                   | Neg Instruction
+--                   | Literal Literal
+--                   | Register Register
+
+--                 | Mov Literal Literal
+--                 | And Register Literal
+--                 | Or Register Literal
+--                 | Not Register
+--                 | Mod Register Literal
+                   | Add Register Literal
+                   | Sub Register Literal
+                   | Mul Register Literal
+                   | Div Register Literal
+
+--                 | Cmp Register Literal
+--                 | Jmp String
+--                 | Jc String Register
+--                 | Jeq String Register
+--                 | Label String
+                   | Program [Instruction]
+deriving instance Show (Instruction)
+deriving instance Eq (Instruction)
