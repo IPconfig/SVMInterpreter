@@ -9,7 +9,8 @@ import Data.Char
 import qualified Text.Megaparsec.Lexer as L
 
 -- We change every instance of float in the AST to Double since Float should be avoided (see https://wiki.haskell.org/Performance/Floating_point)
-data Value = Int | Double | String deriving (Show, Eq)
+
+-- data Value = Int | Double | String deriving (Show, Eq)
 
 -- Discriminated union for the 4 registers of the SVM
 data Register = Reg1
@@ -18,6 +19,16 @@ data Register = Reg1
               | Reg4
 deriving instance Show (Register)
 deriving instance Eq (Register)
+
+-- Data structures representing the constant values of the language. 
+-- Address may contain the Integer representing the memory address or the register from which the address is read.
+data Literal = LitInt Integer
+             | LitFloat Double
+             | LitString String
+             | LitAdress Literal
+             | LitRegister Register
+deriving instance Show (Literal)
+deriving instance Eq (Literal)
 
 -- remove whitsepace
 spaceConsumer :: Parser ()
@@ -49,6 +60,7 @@ parseWord = parseLexeme $ (some alphaNumChar)
 parseWords :: Parser [String]
 parseWords = some parseWord
 
+-- | 'parseRegister' parses a register value
 parseRegister :: Parser Register
 parseRegister = choice [Reg1 <$ string "reg1" -- (<$) parse a keyword and return a no argument constructor
                         , Reg2 <$ string "reg2"
@@ -63,6 +75,86 @@ parseLabel = parseLexeme $ do
   letter <- some letterChar
   rest <- some (alphaNumChar <|> char '_')
   return $ hash ++ letter ++ rest
+
+
+-- | Literal Integer
+parseLitInt :: Parser Literal
+parseLitInt = LitInt <$> parseInteger
+
+-- | Literal Float/Double
+parseLitFloat :: Parser Literal
+parseLitFloat = LitFloat <$> parseDouble
+
+-- | Literal String
+parseLitString :: Parser Literal
+parseLitString = LitString <$> parseWord
+
+-- | Memory Adress
+-- | Memory adresses are defined as integer numbers enclosed by square brackets
+-- | FE: [100], which means “the memory location at index 100”.
+parseMemoryAdress :: Parser Literal
+parseMemoryAdress = parseLexeme $ do 
+  _ <- char '['
+  adress <- some digitChar
+  _ <- char ']'
+  return $ LitAdress $ LitInt $ (read adress) --convert [char] to int
+
+-- | Register Reference
+-- | they are used when a register contains an integer number representing the address of a memory location, rather than a value. They are defined by enclosing the register keyword with square brackets. 
+-- | FE: [reg1] means “the content of the memory address stored in 'reg1'" -> if the register contains the value 1000, this will use the content of the memory location at 1000.
+parseRegisterReference :: Parser Literal
+parseRegisterReference = parseLexeme $ do
+    _ <- char '['
+    fc <- firstChar
+    rest <- many nonFirstChar
+    _ <- char ']'
+    return $ LitAdress $ LitString (fc:rest)
+  where
+    firstChar = satisfy (\a -> isLetter a || a == '_')
+    nonFirstChar = satisfy (\a -> isDigit a || isLetter a || a == '_')
+
+-- Parser that can try both parsers of LitAdress
+parseMemoryAdressOrReference :: Parser Literal
+parseMemoryAdressOrReference = try parseMemoryAdress <|> parseRegisterReference
+
+-- | they are simply denoted with the keywords reg1, reg2, reg3, and reg4
+
+parseLitRegister :: Parser Literal
+parseLitRegister = LitRegister <$> parseRegister
+
+
+-- | parse all literal data structures
+parseLiterals :: Parser Literal
+parseLiterals = try parseMemoryAdressOrReference <|> parseLitRegister <|> parseLitString <|> parseLitFloat <|> parseLitInt 
+
+
+
+
+-- Instructions supported by the SVM. See the documentation for further details.            
+-- We still need address and Register somewhere            
+data Instruction = Nop
+                   | Neg Instruction
+--                   | Literal Literal
+--                   | Register Register
+
+--                 | Mov Literal Literal
+--                 | And Register Literal
+--                 | Or Register Literal
+--                 | Not Register
+--                 | Mod Register Literal
+                   | Add Register Literal
+                   | Sub Register Literal
+                   | Mul Register Literal
+                   | Div Register Literal
+
+--                 | Cmp Register Literal
+--                 | Jmp String
+--                 | Jc String Register
+--                 | Jeq String Register
+--                 | Label String
+                   | Program [Instruction]
+deriving instance Show (Instruction)
+deriving instance Eq (Instruction)
 
 
 -- | 'parens' parses something between parenthesis.
@@ -157,94 +249,3 @@ instruction = parens instruction  -- <|> instructionProgram
 --                 | Add SimpleExpr SimpleExpr
 --                 | Parens SimpleExpr
 --                   deriving (Eq,Show)
-
-
-
-
--- Data structures representing the constant values of the language. 
--- Address may contain the Integer representing the memory address or the register from which the address is read.
-data Literal = LitInt Integer
-             | LitFloat Double
-             | LitString String
-             | LitAdress Literal
-             | LitRegister Register
-deriving instance Show (Literal)
-deriving instance Eq (Literal)
-
--- | Literal Integer
-parseLitInt :: Parser Literal
-parseLitInt = LitInt <$> parseInteger
-
--- | Literal Float/Double
-parseLitFloat :: Parser Literal
-parseLitFloat = LitFloat <$> parseDouble
-
--- | Literal String
-parseLitString :: Parser Literal
-parseLitString = LitString <$> parseWord
-
--- | Memory Adress
--- | Memory adresses are defined as integer numbers enclosed by square brackets
--- | FE: [100], which means “the memory location at index 100”.
-parseMemoryAdress :: Parser Literal
-parseMemoryAdress = parseLexeme $ do 
-  _ <- char '['
-  adress <- some digitChar
-  _ <- char ']'
-  return $ LitAdress $ LitInt $ (read adress) --convert [char] to int
-
--- | Register Reference
--- | they are used when a register contains an integer number representing the address of a memory location, rather than a value. They are defined by enclosing the register keyword with square brackets. 
--- | FE: [reg1] means “the content of the memory address stored in 'reg1'" -> if the register contains the value 1000, this will use the content of the memory location at 1000.
-
-parseRegisterReference :: Parser Literal
-parseRegisterReference = parseLexeme $ do
-    _ <- char '['
-    fc <- firstChar
-    rest <- many nonFirstChar
-    _ <- char ']'
-    return $ LitAdress $ LitString (fc:rest)
-  where
-    firstChar = satisfy (\a -> isLetter a || a == '_')
-    nonFirstChar = satisfy (\a -> isDigit a || isLetter a || a == '_')
-
--- Parser that can try both parsers of LitAdress
-parseMemoryAdressOrReference :: Parser Literal
-parseMemoryAdressOrReference = try parseMemoryAdress <|> parseRegisterReference
-
--- | they are simply denoted with the keywords reg1, reg2, reg3, and reg4
-
-parseLitRegister :: Parser Literal
-parseLitRegister = LitRegister <$> parseRegister
-
-
--- | parse all literal data structures
-parseLiterals :: Parser Literal
-parseLiterals = try parseMemoryAdressOrReference <|> parseLitRegister <|> parseLitString <|> parseLitFloat <|> parseLitInt 
-
-
--- Instructions supported by the SVM. See the documentation for further details.            
--- We still need address and Register somewhere            
-data Instruction = Nop
-                   | Neg Instruction
---                   | Literal Literal
---                   | Register Register
-
---                 | Mov Literal Literal
---                 | And Register Literal
---                 | Or Register Literal
---                 | Not Register
---                 | Mod Register Literal
-                   | Add Register Literal
-                   | Sub Register Literal
-                   | Mul Register Literal
-                   | Div Register Literal
-
---                 | Cmp Register Literal
---                 | Jmp String
---                 | Jc String Register
---                 | Jeq String Register
---                 | Label String
-                   | Program [Instruction]
-deriving instance Show (Instruction)
-deriving instance Eq (Instruction)
