@@ -49,14 +49,16 @@ parseWord = parseLexeme $ (some alphaNumChar)
 parseWords :: Parser [String]
 parseWords = some parseWord
 
--- | 'parseHashtag' parses a hashtag symbol
-parseHashtag :: Parser String
-parseHashtag = parseSymbol "#"
 
+-- | 'parseLabel' parses a Label.
+-- Labels simply use the symbol # followed by a variable name, which can be any alphanumerical sequence of characters starting with a letter. They can also contain the symbol ’_'
 parseLabel :: Parser String
-parseLabel = (parseLexeme . try) (p)
-  where
-    p       = (:) <$> letterChar <*> many alphaNumChar
+parseLabel = parseLexeme $ do
+  hash <- parseSymbol "#"
+  letter <- some letterChar
+  rest <- some (alphaNumChar <|> char '_')
+  return $ hash ++ letter ++ rest
+
 
 -- | 'parens' parses something between parenthesis.
 parens :: Parser a -> Parser a

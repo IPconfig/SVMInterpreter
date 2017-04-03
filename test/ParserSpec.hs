@@ -19,8 +19,8 @@ spec =
         runParser parseWord "" "sampleWord" `shouldBe` Right "sampleWord"
       it "returns multiple words" $ do
         runParser parseWords "" "sampleWord sampleWord2" `shouldBe` Right ["sampleWord", "sampleWord2"]
-      it "returns a hashtag" $ do
-        runParser parseHashtag "" "#" `shouldBe` Right "#"
+      it "returns a label" $ do
+        runParser parseLabel "" "#hello_world" `shouldBe` Right "#hello_world"
       -- Instructions
       -- it "Parse an Instruction" $ do
       --   runParser parseInstruction "" "add" `shouldBe` Right "add"
@@ -29,8 +29,7 @@ spec =
       -- it "Parse Nop Instruction" $ do
       --   runParser skipInstruction "" "Nop" `shouldBe` Right Nop
         --Fix label parser to amtch specification
-      it "Parse a label" $ do
-        runParser parseLabel "" "if2" `shouldBe` Right "if2"
+
 
     describe "with literals" $ do
       it "returns a literal int" $ do
