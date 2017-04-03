@@ -12,10 +12,10 @@ import qualified Text.Megaparsec.Lexer as L
 data Value = Int | Double | String deriving (Show, Eq)
 
 -- Discriminated union for the 4 registers of the SVM
-data Register = Reg1 Value
-              | Reg2 Value
-              | Reg3 Value
-              | Reg4 Value
+data Register = Reg1
+              | Reg2
+              | Reg3
+              | Reg4
 deriving instance Show (Register)
 deriving instance Eq (Register)
 
@@ -49,6 +49,11 @@ parseWord = parseLexeme $ (some alphaNumChar)
 parseWords :: Parser [String]
 parseWords = some parseWord
 
+parseRegister :: Parser Register
+parseRegister = choice [Reg1 <$ string "reg1" -- (<$) parse a keyword and return a no argument constructor
+                        , Reg2 <$ string "reg2"
+                        , Reg3 <$ string "reg3"
+                        , Reg4 <$ string "reg4"]
 
 -- | 'parseLabel' parses a Label.
 -- Labels simply use the symbol # followed by a variable name, which can be any alphanumerical sequence of characters starting with a letter. They can also contain the symbol ’_'
@@ -207,19 +212,10 @@ parseRegisterReference = parseLexeme $ do
 parseMemoryAdressOrReference :: Parser Literal
 parseMemoryAdressOrReference = try parseMemoryAdress <|> parseRegisterReference
 
--- | 'reservedRegisters' contains a list of reserved registers
-reservedRegisters :: [String]
-reservedRegisters = ["reg1","reg2","reg3","reg4"]
-
 -- | they are simply denoted with the keywords reg1, reg2, reg3, and reg4
+
 parseLitRegister :: Parser Literal
-parseLitRegister = undefined
--- parseLitRegister = (parseLexeme . try) (p >>= check)
- -- where
- --   p       = (:) <$> letterChar <*> many alphaNumChar
- --   check x = if x `elem` reservedRegisters
- --             then return $ LitRegister $ (Reg1 (Value x)) --Fix this mess
- --             else fail $ "Register " ++ show x ++ " is not reserved and thus invalid"
+parseLitRegister = LitRegister <$> parseRegister
 
 
 -- | parse all literal data structures
