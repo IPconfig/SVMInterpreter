@@ -210,8 +210,9 @@ reservedRegisters :: [String]
 reservedRegisters = ["reg1","reg2","reg3","reg4"]
 
 -- | they are simply denoted with the keywords reg1, reg2, reg3, and reg4
--- parseLitRegister :: Parser Literal
---parseLitRegister = (parseLexeme . try) (p >>= check)
+parseLitRegister :: Parser Literal
+parseLitRegister = undefined
+-- parseLitRegister = (parseLexeme . try) (p >>= check)
  -- where
  --   p       = (:) <$> letterChar <*> many alphaNumChar
  --   check x = if x `elem` reservedRegisters
