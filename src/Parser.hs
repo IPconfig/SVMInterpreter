@@ -8,7 +8,7 @@ import Text.Megaparsec.String -- input stream is of type ‘String’. We can op
 import Data.Char
 import qualified Text.Megaparsec.Lexer as L
 
--- We change every instance of float in the AST to Double since Float should be avoided (see https://wiki.haskell.org/Performance/Floating_point)
+
 
 -- data Value = Int | Double | String deriving (Show, Eq)
 
@@ -20,6 +20,7 @@ data Register = Reg1
 deriving instance Show (Register)
 deriving instance Eq (Register)
 
+-- We change every instance of float in the AST to Double since Float should be avoided (see https://wiki.haskell.org/Performance/Floating_point)
 -- Data structures representing the constant values of the language. 
 -- Address may contain the Integer representing the memory address or the register from which the address is read.
 data Literal = LitInt Integer
@@ -105,9 +106,9 @@ parseMemoryAdress = parseLexeme $ do
 parseRegisterReference :: Parser Literal
 parseRegisterReference = parseLexeme $ do
     _ <- char '['
-    fc <- parseRegister
+    reg <- parseRegister
     _ <- char ']'
-    return $ LitAdress $ LitRegister (fc)
+    return $ LitAdress $ LitRegister (reg)
 
 -- Parser that can try both parsers of LitAdress
 parseMemoryAdressOrReference :: Parser Literal
