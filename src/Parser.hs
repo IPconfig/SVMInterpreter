@@ -76,7 +76,6 @@ parseLabel = parseLexeme $ do
   rest <- some (alphaNumChar <|> char '_')
   return $ hash ++ letter ++ rest
 
-
 -- | Literal Integer
 parseLitInt :: Parser Literal
 parseLitInt = LitInt <$> parseInteger
@@ -125,7 +124,7 @@ parseLitRegister = LitRegister <$> parseRegister
 
 -- | parse all literal data structures
 parseLiterals :: Parser Literal
-parseLiterals = try parseMemoryAdressOrReference <|> parseLitRegister <|> parseLitString <|> parseLitFloat <|> parseLitInt 
+parseLiterals = parseMemoryAdressOrReference <|> parseLitRegister <|> try parseLitFloat <|> parseLitInt <|> parseLitString
 
 
 
