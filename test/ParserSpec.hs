@@ -45,10 +45,10 @@ spec =
       it "returns a memory adress" $ do
         runParser parseMemoryAdress "" "[15]" `shouldBe` Right (LitAdress (LitInt 15))
       it "retuns a Register Reference" $ do
-        runParser parseRegisterReference "" "[reg1]" `shouldBe` Right (LitAdress (LitString "reg1"))
+        runParser parseRegisterReference "" "[reg1]" `shouldBe` Right (LitAdress (LitRegister Reg1))
       it "returns a literal Register" $ do
           runParser parseLitRegister "" "reg1" `shouldBe` Right (LitRegister Reg1)
       it "new: Parse a memory Adress (Int)" $ do
         runParser parseMemoryAdressOrReference "" "[15]" `shouldBe` Right (LitAdress (LitInt 15))
       it "new: Parse a memory Adress (String)" $ do
-        runParser parseMemoryAdressOrReference "" "[test]" `shouldBe` Right (LitAdress (LitString "test"))
+        runParser parseMemoryAdressOrReference "" "[reg2]" `shouldBe` Right (LitAdress (LitRegister Reg2))

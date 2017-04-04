@@ -52,6 +52,7 @@ parseInteger = parseLexeme L.integer
 parseDouble :: Parser Double -- Megaparsec uses a double internally since float should be avoided in Haskell
 parseDouble = parseLexeme L.float
 
+
 -- | 'parseWord' parses a word
 parseWord :: Parser String 
 parseWord = parseLexeme $ (some alphaNumChar)
@@ -104,19 +105,13 @@ parseMemoryAdress = parseLexeme $ do
 parseRegisterReference :: Parser Literal
 parseRegisterReference = parseLexeme $ do
     _ <- char '['
-    fc <- firstChar
-    rest <- many nonFirstChar
+    fc <- parseRegister
     _ <- char ']'
-    return $ LitAdress $ LitString (fc:rest)
-  where
-    firstChar = satisfy (\a -> isLetter a || a == '_')
-    nonFirstChar = satisfy (\a -> isDigit a || isLetter a || a == '_')
+    return $ LitAdress $ LitRegister (fc)
 
 -- Parser that can try both parsers of LitAdress
 parseMemoryAdressOrReference :: Parser Literal
 parseMemoryAdressOrReference = try parseMemoryAdress <|> parseRegisterReference
-
--- | they are simply denoted with the keywords reg1, reg2, reg3, and reg4
 
 parseLitRegister :: Parser Literal
 parseLitRegister = LitRegister <$> parseRegister
