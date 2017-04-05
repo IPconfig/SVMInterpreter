@@ -40,6 +40,10 @@ parseDouble = parseLexeme L.float
 parseWord :: Parser String 
 parseWord = parseLexeme $ (some alphaNumChar)
 
+-- | parses a given string
+rword :: String -> Parser ()
+rword w = string w *> notFollowedBy alphaNumChar *> spaceConsumer
+
 -- | 'parseWords' parses multiple words
 parseWords :: Parser [String]
 parseWords = some parseWord
