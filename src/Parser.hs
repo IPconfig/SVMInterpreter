@@ -88,9 +88,9 @@ parseMemoryAdress = parseLexeme $ do
 parseRegisterReference :: Parser Literal
 parseRegisterReference = parseLexeme $ do
     _ <- char '['
-    reg <- parseRegister
+    reg <- parseLitRegister
     _ <- char ']'
-    return $ LitAdress $ LitRegister (reg)
+    return $ LitAdress $ reg
 
 -- Parser that can try both parsers of LitAdress
 parseMemoryAdressOrReference :: Parser Literal
