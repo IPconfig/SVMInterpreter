@@ -138,6 +138,29 @@ whileParser = between spaceConsumer eof instruction --remove initial whitespcace
 instruction :: Parser Instruction
 instruction = parens instruction  -- <|> instructionProgram
 
+data AExpr
+  = Var String -- Var = LitString
+  | IntConst Integer -- IntConst = LitInt
+  | Neg AExpr --Neg = Litadress
+  | LitRegister2 Register -- remove
+  deriving (Show)
+
+aExpr :: Parser AExpr
+aExpr = makeExprParser aTerm aOperators
+aOperators :: [[Operator Parser AExpr]]
+aOperators =
+  [ [Prefix (Neg <$ parseSymbol "-") ]
+--  , [ Prefix (ABinary Reg1 <$ string "reg1")
+--    , Prefix (ABinary Reg2   <$ string "reg2") ]
+ -- , [ Prefix (Register2 <$ string "reg1")
+ --   , Prefix (Register2 <$ string "reg2") ]
+  ]
+
+aTerm :: Parser AExpr
+aTerm = parens aExpr
+  <|> IntConst <$> parseInteger
+  <|> LitRegister2 <$> parseRegister
+  <|> Var      <$> parseWord
 -- instructionProgram :: Parser Instruction
 -- instructionProgram = f <$> sepBy1 instruction' spaceChar
 --   -- if there's only one program return it without using ‘Program’
