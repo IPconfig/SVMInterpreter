@@ -48,13 +48,6 @@ rword w = string w *> notFollowedBy alphaNumChar *> spaceConsumer
 parseWords :: Parser [String]
 parseWords = some parseWord
 
--- | 'parseRegister' parses a register value
-parseRegister :: Parser Register
-parseRegister = choice [Reg1 <$ string "reg1" -- (<$) parse a keyword and return a no argument constructor
-                        , Reg2 <$ string "reg2"
-                        , Reg3 <$ string "reg3"
-                        , Reg4 <$ string "reg4"]
-
 -- | 'parseLabel' parses a Label.
 -- Labels simply use the symbol # followed by a variable name, which can be any alphanumerical sequence of characters starting with a letter. They can also contain the symbol ’_'
 parseLabel :: Parser String
@@ -63,6 +56,13 @@ parseLabel = parseLexeme $ do
   letter <- some letterChar
   rest <- some (alphaNumChar <|> char '_')
   return $ hash ++ letter ++ rest
+
+-- | 'parseRegister' parses a register value
+parseRegister :: Parser Register
+parseRegister = choice [Reg1 <$ string "reg1" -- (<$) parse a keyword and return a no argument constructor
+                        , Reg2 <$ string "reg2"
+                        , Reg3 <$ string "reg3"
+                        , Reg4 <$ string "reg4"]
 
 -- | Literal Integer
 parseLitInt :: Parser Literal
