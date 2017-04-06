@@ -22,7 +22,6 @@ deriving instance Eq (Literal)
 -- Instructions supported by the SVM. See the documentation for further details.            
 -- We still need address and Register somewhere            
 data Instruction = Nop
---                 | Label String
                 | Mov Literal Literal
                 | And Register Literal
                 | Or Register Literal
@@ -36,6 +35,7 @@ data Instruction = Nop
                 | Jmp String
                 | Jc String Register
                 | Jeq String Register
+                | LabelI String
                 | Program [Instruction]
 deriving instance Show (Instruction)
 deriving instance Eq (Instruction)

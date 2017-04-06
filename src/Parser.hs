@@ -232,6 +232,10 @@ jeqE = do
   e1 <- parseRegister
   return (Jeq e0 e1)
 
+labelE :: Parser Instruction
+labelE = do
+  e <- parseLabel
+  return (LabelI e)
 
 -- instructionProgram :: Parser Instruction
 -- instructionProgram = f <$> sepBy1 instruction' spaceChar
@@ -246,3 +250,4 @@ instruction' = skipE <|> movE
             <|> addE <|> subE 
             <|> cmpE <|> jmpE 
             <|> jcE <|> jeqE 
+            <|> labelE
