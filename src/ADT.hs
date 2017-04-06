@@ -1,7 +1,5 @@
 {-# LANGUAGE GADTs, StandaloneDeriving #-}
 module ADT where
--- data Value = Int | Double | String deriving (Show, Eq)
-
 -- Discriminated union for the 4 registers of the SVM
 data Register = Reg1
               | Reg2
@@ -33,8 +31,6 @@ data Instruction = Nop
                    | Sub Register Literal
                    | Mul Register Literal
                    | Div Register Literal
-                   | Literal
-                   | Register
 --                 | Cmp Register Literal
 --                 | Jmp String
 --                 | Jc String Register
