@@ -6,11 +6,7 @@ import Control.Monad (void)
 import Text.Megaparsec -- megaparsec generates parsers and can chain them together
 import Text.Megaparsec.Expr
 import Text.Megaparsec.String -- input stream is of type ‘String’. We can optimize our parser by using Data.Text instead
-import Data.Char
 import qualified Text.Megaparsec.Lexer as L
-
-
-
 
 
 -- remove whitsepace
@@ -57,12 +53,16 @@ parseLabel = parseLexeme $ do
   rest <- some (alphaNumChar <|> char '_')
   return $ hash ++ letter ++ rest
 
+-- | 'parens' parses something between parenthesis.
+parens :: Parser a -> Parser a
+parens = between (parseSymbol "(") (parseSymbol ")")
+
 -- | 'parseRegister' parses a register value
 parseRegister :: Parser Register
 parseRegister = choice [Reg1 <$ string "reg1" -- (<$) parse a keyword and return a no argument constructor
                         , Reg2 <$ string "reg2"
                         , Reg3 <$ string "reg3"
-                        , Reg4 <$ string "reg4"]
+                        , Reg4 <$ string "reg4"] <* spaceConsumer
 
 -- | Literal Integer
 parseLitInt :: Parser Literal
@@ -84,7 +84,7 @@ parseMemoryAdress = parseLexeme $ do
   _ <- char '['
   adress <- some digitChar
   _ <- char ']'
-  return $ LitAdress $ LitInt $ (read adress) --convert [char] to int
+  return $ LitAdress $ LitInt $ (read adress) --convert [char] to integer with read
 
 -- | Register Reference
 -- | they are used when a register contains an integer number representing the address of a memory location, rather than a value. They are defined by enclosing the register keyword with square brackets. 
@@ -105,30 +105,19 @@ parseLitRegister = LitRegister <$> parseRegister
 
 
 -- | parse all literal data structures
-parseLiterals :: Parser Literal
-parseLiterals = parseMemoryAdressOrReference <|> parseLitRegister <|> try parseLitFloat <|> parseLitInt <|> parseLitString
-
--- | 'parens' parses something between parenthesis.
-parens :: Parser a -> Parser a
-parens = between (parseSymbol "(") (parseSymbol ")")
-
-
---  parseInstruction :: String -> Parser ()
---  parseInstruction word = string word *> notFollowedBy alphaNumChar *> spaceConsumer
-
-
+-- parseLiterals :: Parser Literal
+-- parseLiterals = parseMemoryAdressOrReference <|> parseLitRegister <|> try parseLitFloat <|> parseLitInt <|> parseLitString
 
 reservedInstructions :: [String] -- list of reserved words
 reservedInstructions = ["nop","mov","and","or","not","mod","add","sub","mul","div","cmp", "jmp", "jc", "jeq"]
 
-parseInstruction :: Parser String
-parseInstruction = (parseLexeme . try) (p >>= check)
+parseInstructionComm :: Parser String
+parseInstructionComm = (parseLexeme . try) (p >>= check)
   where
     p       = (:) <$> letterChar <*> many alphaNumChar
     check x = if x `elem` reservedInstructions
                 then return x
                 else fail $ "instruction " ++ show x ++ " is not reserved"
-
 
 
 --Parser
@@ -138,88 +127,55 @@ whileParser = between spaceConsumer eof instruction --remove initial whitespcace
 instruction :: Parser Instruction
 instruction = parens instruction  -- <|> instructionProgram
 
-data AExpr
-  = Var String -- Var = LitString
-  | IntConst Integer -- IntConst = LitInt
-  | Neg AExpr --Neg = Litadress
-  | LitRegister2 Register -- remove
-  deriving (Show)
+parseLiteral :: Parser Literal
+parseLiteral = makeExprParser litTerm [] <* spaceConsumer -- Empty operator list since we don't have operators for Literals.
 
-aExpr :: Parser AExpr
-aExpr = makeExprParser aTerm aOperators
-aOperators :: [[Operator Parser AExpr]]
-aOperators =
-  [ [Prefix (Neg <$ parseSymbol "-") ]
---  , [ Prefix (ABinary Reg1 <$ string "reg1")
---    , Prefix (ABinary Reg2   <$ string "reg2") ]
- -- , [ Prefix (Register2 <$ string "reg1")
- --   , Prefix (Register2 <$ string "reg2") ]
-  ]
+litTerm :: Parser Literal
+litTerm = parens parseLiteral
+  <|> try parseLitFloat --parser will eat integers and fail without try
+  <|> parseLitInt
+  <|> parseLitRegister
+  <|> parseMemoryAdressOrReference
+  <|> parseLitString
 
-aTerm :: Parser AExpr
-aTerm = parens aExpr
-  <|> IntConst <$> parseInteger
-  <|> LitRegister2 <$> parseRegister
-  <|> Var      <$> parseWord
+
+skipE :: Parser Instruction
+skipE = Nop <$ rword "nop"
+
+addE :: Parser Instruction
+addE = do
+  _  <- rword "add"
+  e0 <- parseRegister
+  e1 <- parseLiteral
+  return (Add e0 e1)
+
+subE :: Parser Instruction
+subE = do
+  _  <- rword "sub"
+  e0 <- parseRegister
+  e1 <- parseLiteral
+  return (Sub e0 e1)
+
+mulE :: Parser Instruction
+mulE = do
+  _  <- rword "mul"
+  e0 <- parseRegister
+  e1 <- parseLiteral
+  return (Mul e0 e1)
+
+divE :: Parser Instruction
+divE = do
+  _  <- rword "div"
+  e0 <- parseRegister
+  e1 <- parseLiteral
+  return (Div e0 e1)
+
+
+
 -- instructionProgram :: Parser Instruction
 -- instructionProgram = f <$> sepBy1 instruction' spaceChar
 --   -- if there's only one program return it without using ‘Program’
 --   where f l = if length l == 1 then head l else Program l
 
--- instruction' :: Parser Instruction
--- -- instruction' = ifStmt <|> whileStmt <|> skipStmt <|> assignStmt
--- instruction' = undefined
-
--- ifStmt :: Parser Instruction
--- ifStmt = do
---   rword "if"
---   cond  <- bExpr
---   rword "then"
---   stmt1 <- stmt
---   rword "else"
---   stmt2 <- stmt
---   return (If cond stmt1 stmt2)
-
--- whileStmt :: Parser Instruction
--- whileStmt = do
---   rword "while"
---   cond <- bExpr
---   rword "do"
---   stmt1 <- stmt
---   return (While cond stmt1)
-
--- assignStmt :: Parser Instruction
--- assignStmt = do
---   var  <- identifier
---   void (symbol ":=")
---   expr <- aExpr
---   return (Assign var expr)
-
--- skipInstruction :: Parser Instruction
--- skipInstruction = Nop <$ parseInstruction "nop"
-
-
-
--- aExpr :: Parser Instruction
--- aExpr = makeExprParser aTerm aOperators
-
--- aOperators :: [[Operator Parser Instruction]]
--- aOperators =
---   [ [Prefix (Neg <$ symbol "-") ]
---   , [ InfixL (Op Mul <$ symbol "*")
---     , InfixL (Op Div <$ symbol "/") ]
---   , [ InfixL (Op Add <$ parseInstruction "add")
---     , InfixL (Op Sub <$ symbol "-") ]
---   ]
-
--- aTerm :: Parser Instruction
--- aTerm = parens aExpr
---     <|>  Var <$> parseLabel
---     <|>  IntConst <$> parseInteger
-
-
--- data SimpleExpr = Num Integer
---                 | Var String
---                 | Add SimpleExpr SimpleExpr
---                 | Parens SimpleExpr
---                   deriving (Eq,Show)
+instruction' :: Parser Instruction
+instruction' = skipE <|> mulE <|> divE <|> addE <|> subE
