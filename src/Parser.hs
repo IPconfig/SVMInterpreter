@@ -142,19 +142,40 @@ litTerm = parens parseLiteral
 skipE :: Parser Instruction
 skipE = Nop <$ rword "nop"
 
-addE :: Parser Instruction
-addE = do
-  _  <- rword "add"
-  e0 <- parseRegister
+movE :: Parser Instruction
+movE = do
+  _  <- rword "mov"
+  e0 <- parseLiteral
   e1 <- parseLiteral
-  return (Add e0 e1)
+  return (Mov e0 e1)
 
-subE :: Parser Instruction
-subE = do
-  _  <- rword "sub"
+andE :: Parser Instruction
+andE = do
+  _  <- rword "and"
   e0 <- parseRegister
   e1 <- parseLiteral
-  return (Sub e0 e1)
+  return (And e0 e1)
+
+orE :: Parser Instruction
+orE = do
+  _  <- rword "mov"
+  e0 <- parseRegister
+  e1 <- parseLiteral
+  return (Or e0 e1)
+
+notE :: Parser Instruction
+notE = do
+  _ <- rword "not"
+  e <- parseRegister
+  return (Not e)
+
+-- arithmics 
+modE :: Parser Instruction
+modE = do
+  _  <- rword "mod"
+  e0 <- parseRegister
+  e1 <- parseLiteral
+  return (Mod e0 e1)
 
 mulE :: Parser Instruction
 mulE = do
@@ -170,6 +191,46 @@ divE = do
   e1 <- parseLiteral
   return (Div e0 e1)
 
+addE :: Parser Instruction
+addE = do
+  _  <- rword "add"
+  e0 <- parseRegister
+  e1 <- parseLiteral
+  return (Add e0 e1)
+
+subE :: Parser Instruction
+subE = do
+  _  <- rword "sub"
+  e0 <- parseRegister
+  e1 <- parseLiteral
+  return (Sub e0 e1)
+
+cmpE :: Parser Instruction
+cmpE = do
+  _  <- rword "cmp"
+  e0 <- parseRegister
+  e1 <- parseLiteral
+  return (Cmp e0 e1)
+
+jmpE :: Parser Instruction
+jmpE = do
+  _  <- rword "jmp"
+  e0 <- parseLabel
+  return (Jmp e0)
+
+jcE :: Parser Instruction
+jcE = do
+  _  <- rword "jc"
+  e0 <- parseLabel
+  e1 <- parseRegister
+  return (Jc e0 e1)
+
+jeqE :: Parser Instruction
+jeqE = do
+  _  <- rword "jeq"
+  e0 <- parseLabel
+  e1 <- parseRegister
+  return (Jeq e0 e1)
 
 
 -- instructionProgram :: Parser Instruction
@@ -178,4 +239,10 @@ divE = do
 --   where f l = if length l == 1 then head l else Program l
 
 instruction' :: Parser Instruction
-instruction' = skipE <|> mulE <|> divE <|> addE <|> subE
+instruction' = skipE <|> movE 
+            <|> andE <|> orE 
+            <|> notE <|> modE 
+            <|> mulE <|> divE 
+            <|> addE <|> subE 
+            <|> cmpE <|> jmpE 
+            <|> jcE <|> jeqE 

@@ -22,20 +22,20 @@ deriving instance Eq (Literal)
 -- Instructions supported by the SVM. See the documentation for further details.            
 -- We still need address and Register somewhere            
 data Instruction = Nop
---                 | Mov Literal Literal
---                 | And Register Literal
---                 | Or Register Literal
---                 | Not Register
---                 | Mod Register Literal
-                   | Add Register Literal
-                   | Sub Register Literal
-                   | Mul Register Literal
-                   | Div Register Literal
---                 | Cmp Register Literal
---                 | Jmp String
---                 | Jc String Register
---                 | Jeq String Register
 --                 | Label String
-                   | Program [Instruction]
+                | Mov Literal Literal
+                | And Register Literal
+                | Or Register Literal
+                | Not Register
+                | Mod Register Literal
+                | Add Register Literal
+                | Sub Register Literal
+                | Mul Register Literal
+                | Div Register Literal
+                | Cmp Register Literal
+                | Jmp String
+                | Jc String Register
+                | Jeq String Register
+                | Program [Instruction]
 deriving instance Show (Instruction)
 deriving instance Eq (Instruction)
