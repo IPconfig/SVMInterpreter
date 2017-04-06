@@ -57,6 +57,7 @@ parseLabel :: Parser String
 parseLabel = parseLexeme $ do
   hash <- parseSymbol "#"
   letter <- some letterChar
+  rest <- many (alphaNumChar <|> char '_')
   return $ hash ++ letter ++ rest
 
 -- | 'parens' parses something between parenthesis.
