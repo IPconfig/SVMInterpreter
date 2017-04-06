@@ -139,8 +139,8 @@ litTerm = parens parseLiteral
   <|> parseLitString
 
 
-skipE :: Parser Instruction
-skipE = Nop <$ rword "nop"
+nopE :: Parser Instruction
+nopE = Nop <$ rword "nop"
 
 movE :: Parser Instruction
 movE = do
@@ -158,7 +158,7 @@ andE = do
 
 orE :: Parser Instruction
 orE = do
-  _  <- rword "mov"
+  _  <- rword "or"
   e0 <- parseRegister
   e1 <- parseLiteral
   return (Or e0 e1)
@@ -243,7 +243,7 @@ labelE = do
 --   where f l = if length l == 1 then head l else Program l
 
 instruction' :: Parser Instruction
-instruction' = skipE <|> movE 
+instruction' = nopE <|> movE 
             <|> andE <|> orE 
             <|> notE <|> modE 
             <|> mulE <|> divE 
