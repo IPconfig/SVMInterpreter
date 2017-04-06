@@ -20,6 +20,8 @@ spec =
         runParser parseWord "" "sampleWord" `shouldBe` Right "sampleWord"
       it "returns multiple words" $ do
         runParser parseWords "" "sampleWord sampleWord2" `shouldBe` Right ["sampleWord", "sampleWord2"]
+      it "returns an identifier" $ do
+        runParser parseId "" "h98_0e" `shouldBe` Right "h98_0e"
       it "returns a label" $ do
         runParser parseLabel "" "#hello_world" `shouldBe` Right "#hello_world"
       it "returns a register" $ do

@@ -44,13 +44,19 @@ rword w = string w *> notFollowedBy alphaNumChar *> spaceConsumer
 parseWords :: Parser [String]
 parseWords = some parseWord
 
+-- | 'parseId' parses an identitifier
+parseId :: Parser String
+parseId = parseLexeme $ do 
+  letter <- some letterChar
+  rest <- many (alphaNumChar <|> char '_')
+  return $ letter ++ rest
+
 -- | 'parseLabel' parses a Label.
 -- Labels simply use the symbol # followed by a variable name, which can be any alphanumerical sequence of characters starting with a letter. They can also contain the symbol ’_'
 parseLabel :: Parser String
 parseLabel = parseLexeme $ do
   hash <- parseSymbol "#"
   letter <- some letterChar
-  rest <- some (alphaNumChar <|> char '_')
   return $ hash ++ letter ++ rest
 
 -- | 'parens' parses something between parenthesis.
