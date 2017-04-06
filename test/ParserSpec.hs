@@ -24,18 +24,6 @@ spec =
         runParser parseLabel "" "#hello_world" `shouldBe` Right "#hello_world"
       it "returns a register" $ do
         runParser parseRegister "" "reg1" `shouldBe` Right Reg1
-
-        
-      -- Instructions
-      -- it "Parse an Instruction" $ do
-      --   runParser parseInstruction "" "add" `shouldBe` Right "add"
-      -- it "Parse an undefined Instruction" $ do
-      --   runParser parseInstruction "" "test" `shouldBe` Right "instruction test is not reserverd"
-      -- it "Parse Nop Instruction" $ do
-      --   runParser skipInstruction "" "Nop" `shouldBe` Right Nop
-        --Fix label parser to amtch specification
-
-
     describe "with literals" $ do
       it "returns a literal int" $ do
         runParser parseLitInt "" "15" `shouldBe` Right (LitInt 15)
@@ -44,12 +32,43 @@ spec =
       it "returns a literal string" $ do
         runParser parseLitString "" "sampleWord" `shouldBe` Right (LitString "sampleWord")
       it "returns a memory adress" $ do
-        runParser parseMemoryAdress "" "[15]" `shouldBe` Right (LitAdress (LitInt 15))
+        runParser parseMemoryAdressOrReference "" "[15]" `shouldBe` Right (LitAdress (LitInt 15))
       it "retuns a Register Reference" $ do
-        runParser parseRegisterReference "" "[reg1]" `shouldBe` Right (LitAdress (LitRegister Reg1))
+        runParser parseMemoryAdressOrReference "" "[reg1]" `shouldBe` Right (LitAdress (LitRegister Reg1))
       it "returns a literal Register" $ do
           runParser parseLitRegister "" "reg1" `shouldBe` Right (LitRegister Reg1)
-      it "new: Parse a memory Adress (Int)" $ do
-        runParser parseMemoryAdressOrReference "" "[15]" `shouldBe` Right (LitAdress (LitInt 15))
-      it "new: Parse a memory Adress (String)" $ do
-        runParser parseMemoryAdressOrReference "" "[reg2]" `shouldBe` Right (LitAdress (LitRegister Reg2))
+    describe "with instructions" $ do
+      it "returns instruction (Nop)" $ do
+        runParser instruction' "" "nop" `shouldBe` Right (Nop)
+      it "returns instruction (Mov)" $ do
+        runParser instruction' "" "mov 10 10" `shouldBe` Right (Mov (LitInt 10) (LitInt 10))
+      it "returns instruction (And)" $ do
+        runParser instruction' "" "and reg1 10" `shouldBe` Right (And (Reg1) (LitInt 10))
+      it "returns instruction (Or)" $ do
+        runParser instruction' "" "or reg1 10" `shouldBe` Right (Or (Reg1) (LitInt 10))
+      it "returns instruction (Not)" $ do
+        runParser instruction' "" "not reg1" `shouldBe` Right (Not (Reg1))
+      it "returns instruction (Mod)" $ do
+        runParser instruction' "" "mod reg1 10" `shouldBe` Right (Mod (Reg1) (LitInt 10))
+      it "returns instruction (Add)" $ do
+        runParser instruction' "" "add reg1 10" `shouldBe` Right (Add (Reg1) (LitInt 10))
+      it "returns instruction (Sub)" $ do
+        runParser instruction' "" "sub reg1 10" `shouldBe` Right (Sub (Reg1) (LitInt 10))
+      it "returns instruction (Mul)" $ do
+        runParser instruction' "" "mul reg1 10" `shouldBe` Right (Mul (Reg1) (LitInt 10))
+      it "returns instruction (Div)" $ do
+        runParser instruction' "" "div reg1 10" `shouldBe` Right (Div (Reg1) (LitInt 10))
+      it "returns instruction (Cmp)" $ do
+        runParser instruction' "" "cmp reg1 10" `shouldBe` Right (Cmp (Reg1) (LitInt 10))
+      it "returns instruction (Jmp)" $ do
+        runParser instruction' "" "jmp #hello_world" `shouldBe` Right (Jmp "#hello_world")
+      it "returns instruction (Jc)" $ do
+        runParser instruction' "" "jc #hello_world reg4" `shouldBe` Right (Jc "#hello_world" Reg4)
+      it "returns instruction (Jeq)" $ do
+        runParser instruction' "" "jeq #hello_world reg3" `shouldBe` Right (Jeq "#hello_world" Reg3)
+      it "returns instruction (Label)" $ do
+        runParser instruction' "" "#hello_world" `shouldBe` Right (LabelI "#hello_world")
+      --   runParser parseInstruction "" "test" `shouldBe` Right "instruction test is not reserverd"
+      -- it "Parse Nop Instruction" $ do
+      --   runParser skipInstruction "" "Nop" `shouldBe` Right Nop
+        --Fix label parser to amtch specification
