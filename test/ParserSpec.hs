@@ -23,7 +23,7 @@ spec =
       it "returns an identifier" $ do
         runParser parseId "" "h98_0e" `shouldBe` Right "h98_0e"
       it "returns a label" $ do
-        runParser parseLabel "" "#hello_world" `shouldBe` Right "#hello_world"
+        runParser parseLabel "" "#h" `shouldBe` Right "#h"
       it "returns a register" $ do
         runParser parseRegister "" "reg1" `shouldBe` Right Reg1
     describe "with literals" $ do
