@@ -70,7 +70,5 @@ spec =
         runParser instruction' "" "jeq #hello_world reg3" `shouldBe` Right (Jeq "#hello_world" Reg3)
       it "returns instruction (Label)" $ do
         runParser instruction' "" "#hello_world" `shouldBe` Right (LabelI "#hello_world")
-      --   runParser parseInstruction "" "test" `shouldBe` Right "instruction test is not reserverd"
-      -- it "Parse Nop Instruction" $ do
-      --   runParser skipInstruction "" "Nop" `shouldBe` Right Nop
-        --Fix label parser to amtch specification
+      it "returns a Program[Instruction]" $ do
+        runParser instructionProgram "" "mov 10 5 \n and reg1 4" `shouldBe` Right (Program [Mov (LitInt 10) (LitInt 5),And Reg1 (LitInt 4)])

@@ -31,7 +31,6 @@ parseInteger = parseLexeme L.integer
 parseDouble :: Parser Double -- Megaparsec uses a double internally since float should be avoided in Haskell
 parseDouble = parseLexeme L.float
 
-
 -- | 'parseWord' parses a word
 parseWord :: Parser String 
 parseWord = parseLexeme $ (some alphaNumChar)
@@ -110,30 +109,7 @@ parseMemoryAdressOrReference = try parseMemoryAdress <|> parseRegisterReference
 parseLitRegister :: Parser Literal
 parseLitRegister = LitRegister <$> parseRegister
 
-
 -- | parse all literal data structures
--- parseLiterals :: Parser Literal
--- parseLiterals = parseMemoryAdressOrReference <|> parseLitRegister <|> try parseLitFloat <|> parseLitInt <|> parseLitString
-
-reservedInstructions :: [String] -- list of reserved words
-reservedInstructions = ["nop","mov","and","or","not","mod","add","sub","mul","div","cmp", "jmp", "jc", "jeq"]
-
-parseInstructionComm :: Parser String
-parseInstructionComm = (parseLexeme . try) (p >>= check)
-  where
-    p       = (:) <$> letterChar <*> many alphaNumChar
-    check x = if x `elem` reservedInstructions
-                then return x
-                else fail $ "instruction " ++ show x ++ " is not reserved"
-
-
---Parser
-whileParser :: Parser Instruction
-whileParser = between spaceConsumer eof instruction --remove initial whitespcace since we only remove after the tokens
-
-instruction :: Parser Instruction
-instruction = parens instruction  -- <|> instructionProgram
-
 parseLiteral :: Parser Literal
 parseLiteral = makeExprParser litTerm [] <* spaceConsumer -- Empty operator list since we don't have operators for Literals.
 
@@ -144,7 +120,6 @@ litTerm = parens parseLiteral
   <|> parseLitRegister
   <|> parseMemoryAdressOrReference
   <|> parseLitString
-
 
 nopE :: Parser Instruction
 nopE = Nop <$ rword "nop"
@@ -212,6 +187,7 @@ subE = do
   e1 <- parseLiteral
   return (Sub e0 e1)
 
+-- memory manipulation
 cmpE :: Parser Instruction
 cmpE = do
   _  <- rword "cmp"
@@ -219,6 +195,7 @@ cmpE = do
   e1 <- parseLiteral
   return (Cmp e0 e1)
 
+-- jump statements
 jmpE :: Parser Instruction
 jmpE = do
   _  <- rword "jmp"
@@ -244,10 +221,9 @@ labelE = do
   e <- parseLabel
   return (LabelI e)
 
--- instructionProgram :: Parser Instruction
--- instructionProgram = f <$> sepBy1 instruction' spaceChar
---   -- if there's only one program return it without using ‘Program’
---   where f l = if length l == 1 then head l else Program l
+instructionProgram :: Parser Instruction
+instructionProgram = f <$> sepBy1 instruction' (many $ oneOf "\n") -- Seperate instructions by newline
+  where f l = if length l == 1 then head l else Program l   -- if there's only one instruction return it without using ‘Program’
 
 instruction' :: Parser Instruction
 instruction' = nopE <|> movE 
