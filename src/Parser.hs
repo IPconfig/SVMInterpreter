@@ -234,3 +234,10 @@ instruction' = nopE <|> movE
             <|> cmpE <|> jmpE 
             <|> jcE <|> jeqE 
             <|> labelE
+
+instruction :: Parser Instruction
+instruction = parens instruction  <|> instructionProgram
+
+--Parser
+whileParser :: Parser Instruction
+whileParser = between spaceConsumer eof instruction --remove initial whitespcace since we only remove after the tokens
