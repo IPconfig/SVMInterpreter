@@ -14,6 +14,7 @@ deriving instance Eq (Register)
 data Literal = LitInt Integer
              | LitFloat Double
              | LitString String
+             | Neg Literal
              | LitAdress Literal
              | LitRegister Register
 deriving instance Show (Literal)

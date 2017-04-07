@@ -111,7 +111,12 @@ parseLitRegister = LitRegister <$> parseRegister
 
 -- | parse all literal data structures
 parseLiteral :: Parser Literal
-parseLiteral = makeExprParser litTerm [] <* spaceConsumer -- Empty operator list since we don't have operators for Literals.
+parseLiteral = makeExprParser litTerm litOperators <* spaceConsumer -- Empty operator list since we don't have operators for Literals.
+
+litOperators :: [[Operator Parser Literal]]
+litOperators =
+  [ [Prefix (Neg <$ parseSymbol "-") ]
+  ]
 
 litTerm :: Parser Literal
 litTerm = parens parseLiteral
