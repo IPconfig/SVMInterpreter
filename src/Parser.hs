@@ -199,20 +199,20 @@ cmpE = do
 jmpE :: Parser Instruction
 jmpE = do
   _  <- rword "jmp"
-  e0 <- parseLabel
+  e0 <- parseId
   return (Jmp e0)
 
 jcE :: Parser Instruction
 jcE = do
   _  <- rword "jc"
-  e0 <- parseLabel
+  e0 <- parseId
   e1 <- parseRegister
   return (Jc e0 e1)
 
 jeqE :: Parser Instruction
 jeqE = do
   _  <- rword "jeq"
-  e0 <- parseLabel
+  e0 <- parseId
   e1 <- parseRegister
   return (Jeq e0 e1)
 
@@ -241,3 +241,13 @@ instruction = parens instruction  <|> instructionProgram
 --Parser
 whileParser :: Parser Instruction
 whileParser = between spaceConsumer eof instruction --remove initial whitespcace since we only remove after the tokens
+
+parseFile :: Show a => Parser a -> String -> IO (Either String a)
+parseFile p str = do
+  f <- readFile str
+  let res = parse p str f
+  case res of
+    Left err -> return . Left $ parseErrorPretty err
+    Right a  -> return $ Right a -- putStrLn "passed"
+
+-- parseFile whileParser "test.svm"

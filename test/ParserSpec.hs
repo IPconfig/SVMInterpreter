@@ -63,11 +63,11 @@ spec =
       it "returns instruction (Cmp)" $ do
         runParser instruction' "" "cmp reg1 10" `shouldBe` Right (Cmp (Reg1) (LitInt 10))
       it "returns instruction (Jmp)" $ do
-        runParser instruction' "" "jmp #hello_world" `shouldBe` Right (Jmp "#hello_world")
+        runParser instruction' "" "jmp hello_world" `shouldBe` Right (Jmp "hello_world")
       it "returns instruction (Jc)" $ do
-        runParser instruction' "" "jc #hello_world reg4" `shouldBe` Right (Jc "#hello_world" Reg4)
+        runParser instruction' "" "jc hello_world reg4" `shouldBe` Right (Jc "hello_world" Reg4)
       it "returns instruction (Jeq)" $ do
-        runParser instruction' "" "jeq #hello_world reg3" `shouldBe` Right (Jeq "#hello_world" Reg3)
+        runParser instruction' "" "jeq hello_world reg3" `shouldBe` Right (Jeq "hello_world" Reg3)
       it "returns instruction (Label)" $ do
         runParser instruction' "" "#hello_world" `shouldBe` Right (LabelI "#hello_world")
       it "returns a Program[Instruction]" $ do
