@@ -6,6 +6,7 @@ import Control.Monad (void)
 import Text.Megaparsec -- megaparsec generates parsers and can chain them together
 import Text.Megaparsec.Expr
 import Text.Megaparsec.String -- input stream is of type ‘String’. We can optimize our parser by using Data.Text instead
+-- import System.Environment (getArgs)
 import qualified Text.Megaparsec.Lexer as L
 
 
@@ -115,7 +116,7 @@ parseLiteral = makeExprParser litTerm litOperators <* spaceConsumer -- Empty ope
 
 litOperators :: [[Operator Parser Literal]]
 litOperators =
-  [ [Prefix (Neg <$ parseSymbol "-") ]
+  [ -- [Prefix (Neg <$ parseSymbol "-") ]
   ]
 
 litTerm :: Parser Literal
@@ -246,6 +247,7 @@ instruction = parens instruction  <|> instructionProgram
 --Parser
 whileParser :: Parser Instruction
 whileParser = between spaceConsumer eof instruction --remove initial whitespcace since we only remove after the tokens
+
 
 
 parseFile :: FilePath -> IO ()
