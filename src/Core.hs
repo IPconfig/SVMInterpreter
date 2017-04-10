@@ -1,7 +1,7 @@
 module Core where
 import ADT
 
-data Value = INT Int | DOUBLE Double | STRING String deriving (Eq)
+data Value = INT Integer | DOUBLE Double | STRING String deriving (Eq)
 instance Show Value where
   show (INT x) = show x
   show (DOUBLE x) = show x
