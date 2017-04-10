@@ -48,3 +48,18 @@ getRegister reg svm = case reg of
 
 createMemory :: Int -> Memory
 createMemory n = replicate n (INT 0)
+
+readMemory :: Int -> Memory -> Value
+readMemory _ [] = error "empty memory. This should never happen" --runtime exception
+readMemory y (x:xs) | y <= 0 = x -- Start index at 0
+                             | otherwise = readMemory (y-1) xs
+                             
+setMemory :: Int -> Value -> Memory -> Memory
+setMemory adress value mem
+  | adress < length mem = case splitAt adress mem of
+                            (front, back) -> front ++ value : back
+  --                          _ -> mem -- if the list doesn't have an element at index adress. Use this or the runtimeError
+  | otherwise = error "memory adress out of bounds" --runtime exception
+
+printMemory :: Memory -> String
+printMemory = undefined
