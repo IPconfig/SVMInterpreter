@@ -247,12 +247,11 @@ instruction = parens instruction  <|> instructionProgram
 whileParser :: Parser Instruction
 whileParser = between spaceConsumer eof instruction --remove initial whitespcace since we only remove after the tokens
 
-parseFile :: Show a => Parser a -> String -> IO (Either String a)
-parseFile p str = do
-  f <- readFile str
-  let res = parse p str f
-  case res of
-    Left err -> return . Left $ parseErrorPretty err
-    Right a  -> return $ Right a -- putStrLn "passed"
 
--- parseFile whileParser "test.svm"
+parseFile :: FilePath -> IO ()
+parseFile filename = do
+--  [filename] <- getArgs
+  jsonstring <- readFile filename
+  case (parse whileParser "" jsonstring) of
+    Left err -> putStr (parseErrorPretty err)
+    Right json -> print json
