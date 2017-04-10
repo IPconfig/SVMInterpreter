@@ -80,3 +80,25 @@ setMemory' adress value SVMState{memory = mem
 
 printMemory :: Memory -> String
 printMemory = undefined
+
+-- usage: setMemWithAnyArg 2 (LitInt 99) emptySVMState
+setMemWithAnyArg :: Int -> Literal -> SVMState -> SVMState
+setMemWithAnyArg adress lit svm = case lit of
+  (LitInt x) -> setMemory' adress (INT x) svm
+  (LitFloat x) -> setMemory' adress (DOUBLE x) svm
+  (LitString x) -> setMemory' adress (STRING x) svm
+  -- (LitAdress (LitInt x)) -> setMemory' adress (readMemory x (svm{memory})) svm
+  -- (LitAdress (LitRegister x))
+  (LitRegister x) -> setMemory' adress (getRegister x svm) svm -- setMemWithAnyArg 0 (LitRegister Reg2) emptySVMState
+  _ -> error "invalid right argument structure"
+
+--setRegWithAnyArgument :: Register -> Literal -> SVM
+setRegWithAnyArg :: Register -> Literal -> SVMState -> SVMState
+setRegWithAnyArg reg lit svm = case lit of
+  (LitInt x) -> setRegister reg (INT x) svm
+  (LitFloat x) -> setRegister reg (DOUBLE x) svm
+  (LitString x) -> setRegister reg (STRING x) svm
+  -- (LitAdress (LitInt x))
+  -- (LitAdress (LitRegister x))
+  (LitRegister x) -> setRegister reg (getRegister x svm) svm -- setRegWithAnyArg Reg1 (LitRegister Reg2) emptySVMState
+  _ -> error "invalid right argument structure"
