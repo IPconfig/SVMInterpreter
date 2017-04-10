@@ -28,7 +28,6 @@ emptySVMState = SVMState
     , register4 = INT 0
     , programCounter = 0
     } 
---setRegWithAnyArgument :: Register -> Literal -> SVM
 
 -- usage:: setRegister Reg1 (STRING("set Reg 1 to this text")) emptySVMState
 setRegister :: Register -> Value -> SVMState -> SVMState
@@ -38,7 +37,7 @@ setRegister reg value svm = case reg of
     Reg3 -> svm { register3 = value }
     Reg4 -> svm { register4 = value }
 
-
+-- usage: getRegister Reg3 emptySVMState
 getRegister :: Register -> SVMState -> Value
 getRegister reg svm = case reg of
   Reg1 -> register1 svm
@@ -49,8 +48,8 @@ getRegister reg svm = case reg of
 createMemory :: Int -> Memory
 createMemory n = replicate n (INT 0)
 
-readMemory :: Int -> Memory -> Value
-readMemory _ [] = error "empty memory. This should never happen" --runtime exception
+readMemory :: Integer -> Memory -> Value
+readMemory _ [] = error "empty memory. This should never happen" -- runtime exception
 readMemory y (x:xs) | y <= 0 = x -- Start index at 0
                              | otherwise = readMemory (y-1) xs
                              
@@ -58,8 +57,26 @@ setMemory :: Int -> Value -> Memory -> Memory
 setMemory adress value mem
   | adress < length mem = case splitAt adress mem of
                             (front, back) -> front ++ value : back
-  --                          _ -> mem -- if the list doesn't have an element at index adress. Use this or the runtimeError
-  | otherwise = error "memory adress out of bounds" --runtime exception
+  | otherwise = error "memory adress out of bounds" -- runtime exception
+
+
+-- usage:: setMemory' 2 (INT 2) emptySVMState
+setMemory' :: Int -> Value -> SVMState -> SVMState
+setMemory' adress value SVMState{memory = mem
+  , register1 = sreg1
+  , register2 = sreg2
+  , register3 = sreg3
+  , register4 = sreg4
+  , programCounter = spc }
+  | adress < length mem = case splitAt adress mem of
+                                 (front, back) -> SVMState { memory = front ++ value : back
+                                 , register1 = sreg1
+                                 , register2 = sreg2
+                                 , register3 = sreg3
+                                 , register4 = sreg4
+                                 , programCounter = spc }
+   | otherwise = error "memory adress out of bounds" -- runtime exception
+                                  
 
 printMemory :: Memory -> String
 printMemory = undefined
