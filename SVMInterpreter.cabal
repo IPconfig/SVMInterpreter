@@ -22,6 +22,7 @@ library
                      , ADT
                      , Parser
                      , Core
+                     , Interpreter
   build-depends:       base >= 4.7 && < 5
                      , megaparsec
 
