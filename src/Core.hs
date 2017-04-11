@@ -52,13 +52,24 @@ readMemory :: Integer -> Memory -> Value
 readMemory _ [] = error "empty memory. This should never happen" -- runtime exception
 readMemory y (x:xs) | y <= 0 = x -- Start index at 0
                              | otherwise = readMemory (y-1) xs
-                             
+
+-- let a = setMemory' 2 (INT 89) emptySVMState
+-- getMemory 2 a
+getMemory :: Integer -> SVMState -> Value
+getMemory adress SVMState {memory = mem} 
+  =  readMemory adress mem
+
 setMemory :: Int -> Value -> Memory -> Memory
 setMemory adress value mem
   | adress < length mem = case splitAt adress mem of
                             (front, back) -> front ++ value : back
   | otherwise = error "memory adress out of bounds" -- runtime exception
 
+-- | usage getAdressFromRegister Reg1 emptySVMState
+getAdressFromRegister :: Register -> SVMState -> Integer
+getAdressFromRegister reg svm = case getRegister reg svm of
+  (INT x) -> x
+  _ -> error "The register does not contain an Integer"
 
 -- usage:: setMemory' 2 (INT 2) emptySVMState
 setMemory' :: Int -> Value -> SVMState -> SVMState
@@ -87,8 +98,8 @@ setMemWithAnyArg adress lit svm = case lit of
   (LitInt x) -> setMemory' adress (INT x) svm
   (LitFloat x) -> setMemory' adress (DOUBLE x) svm
   (LitString x) -> setMemory' adress (STRING x) svm
-  -- (LitAdress (LitInt x)) -> setMemory' adress (readMemory x (svm{memory})) svm
-  -- (LitAdress (LitRegister x))
+  (LitAdress (LitInt x)) -> setMemory' adress (getMemory x svm) svm
+  (LitAdress (LitRegister x)) -> setMemory' adress (getMemory(getAdressFromRegister x svm) svm) svm
   (LitRegister x) -> setMemory' adress (getRegister x svm) svm -- setMemWithAnyArg 0 (LitRegister Reg2) emptySVMState
   _ -> error "invalid right argument structure"
 
