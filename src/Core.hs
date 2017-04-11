@@ -29,8 +29,8 @@ emptySVMState = SVMState
     , programCounter = 0
     } 
 
-createMemory :: Int -> Memory
-createMemory n = replicate n (INT 0)
+createMemory :: Integer -> Memory
+createMemory n = replicate (fromInteger n) (INT 0)
 
 readMemory :: Integer -> Memory -> Value
 readMemory _ [] = error "empty memory. This should never happen"
@@ -42,14 +42,14 @@ getMemory :: Integer -> SVMState -> Value
 getMemory adress SVMState {memory = mem} 
   =  readMemory adress mem
 
-setMemory :: Int -> Value -> SVMState -> SVMState
+setMemory :: Integer -> Value -> SVMState -> SVMState
 setMemory adress value SVMState{memory = mem
   , register1 = sreg1
   , register2 = sreg2
   , register3 = sreg3
   , register4 = sreg4
   , programCounter = spc }
-  | adress < length mem = case splitAt adress mem of
+  | adress < (toInteger (length mem)) = case splitAt (fromInteger(adress)) mem of
                                  (front, back) -> SVMState { memory = front ++ value : (tail back)
                                  , register1 = sreg1
                                  , register2 = sreg2
@@ -58,7 +58,7 @@ setMemory adress value SVMState{memory = mem
                                  , programCounter = spc }
    | otherwise = error "memory adress out of bounds"
                                   
-setMemWithAnyArg :: Int -> Literal -> SVMState -> SVMState
+setMemWithAnyArg :: Integer -> Literal -> SVMState -> SVMState
 setMemWithAnyArg adress lit svm = case lit of
   (LitInt x) -> setMemory adress (INT x) svm
   (LitFloat x) -> setMemory adress (DOUBLE x) svm
@@ -101,3 +101,17 @@ setRegWithAnyArg reg lit svm = case lit of
   (LitAdress (LitRegister x)) -> setRegister reg (getMemory(getAdressFromRegister x svm) svm) svm -- move contents from [reg1] to reg4
   (LitRegister x) -> setRegister reg (getRegister x svm) svm
   _ -> error "invalid right argument structure"
+
+updateProgramCounter :: SVMState -> SVMState
+updateProgramCounter SVMState { memory = mem
+                              , register1 = sreg1
+                              , register2 = sreg2
+                              , register3 = sreg3
+                              , register4 = sreg4
+                              , programCounter = spc } 
+                              = SVMState { memory = mem
+                                          , register1 = sreg1
+                                          , register2 = sreg2
+                                          , register3 = sreg3
+                                          , register4 = sreg4
+                                          , programCounter = spc + 1 }
