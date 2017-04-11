@@ -6,9 +6,8 @@ instance Show Value where
   show (INT x) = show x
   show (DOUBLE x) = show x
   show (STRING x) = show x
-
+  
 type Memory = [Value]
-
 data SVMState = SVMState { memory :: [Value]
                          , register1   :: Value
                          , register2   :: Value
@@ -29,22 +28,6 @@ emptySVMState = SVMState
     , programCounter = 0
     } 
 
--- usage:: setRegister Reg1 (STRING("set Reg 1 to this text")) emptySVMState
-setRegister :: Register -> Value -> SVMState -> SVMState
-setRegister reg value svm = case reg of
-    Reg1 -> svm { register1 = value }
-    Reg2 -> svm { register2 = value }
-    Reg3 -> svm { register3 = value }
-    Reg4 -> svm { register4 = value }
-
--- usage: getRegister Reg3 emptySVMState
-getRegister :: Register -> SVMState -> Value
-getRegister reg svm = case reg of
-  Reg1 -> register1 svm
-  Reg2 -> register2 svm
-  Reg3 -> register3 svm
-  Reg4 -> register4 svm
-
 createMemory :: Int -> Memory
 createMemory n = replicate n (INT 0)
 
@@ -53,19 +36,11 @@ readMemory _ [] = error "empty memory. This should never happen" -- runtime exce
 readMemory y (x:xs) | y <= 0 = x -- Start index at 0
                              | otherwise = readMemory (y-1) xs
 
--- let a = setMemory' 2 (INT 89) emptySVMState
--- getMemory 2 a
+-- | MEMORY FUNCTIONS 
 getMemory :: Integer -> SVMState -> Value
 getMemory adress SVMState {memory = mem} 
   =  readMemory adress mem
 
--- | usage getAdressFromRegister Reg1 emptySVMState
-getAdressFromRegister :: Register -> SVMState -> Integer
-getAdressFromRegister reg svm = case getRegister reg svm of
-  (INT x) -> x
-  _ -> error "The register does not contain an Integer"
-
--- usage:: setMemory 2 (INT 2) emptySVMState
 setMemory :: Int -> Value -> SVMState -> SVMState
 setMemory adress value SVMState{memory = mem
   , register1 = sreg1
@@ -74,19 +49,14 @@ setMemory adress value SVMState{memory = mem
   , register4 = sreg4
   , programCounter = spc }
   | adress < length mem = case splitAt adress mem of
-                                 (front, back) -> SVMState { memory = front ++ value : (tail back) -- remove the first element of the 2nd list, since we insert a new element at that position
+                                 (front, back) -> SVMState { memory = front ++ value : (tail back)
                                  , register1 = sreg1
                                  , register2 = sreg2
                                  , register3 = sreg3
                                  , register4 = sreg4
                                  , programCounter = spc }
-   | otherwise = error "memory adress out of bounds" -- runtime exception
+   | otherwise = error "memory adress out of bounds"
                                   
-
-printMemory :: Memory -> String
-printMemory = undefined
-
--- usage: setMemWithAnyArg 2 (LitInt 99) emptySVMState
 setMemWithAnyArg :: Int -> Literal -> SVMState -> SVMState
 setMemWithAnyArg adress lit svm = case lit of
   (LitInt x) -> setMemory adress (INT x) svm
@@ -94,10 +64,33 @@ setMemWithAnyArg adress lit svm = case lit of
   (LitString x) -> setMemory adress (STRING x) svm
   (LitAdress (LitInt x)) -> setMemory adress (getMemory x svm) svm
   (LitAdress (LitRegister x)) -> setMemory adress (getMemory(getAdressFromRegister x svm) svm) svm
-  (LitRegister x) -> setMemory adress (getRegister x svm) svm -- setMemWithAnyArg 0 (LitRegister Reg2) emptySVMState
+  (LitRegister x) -> setMemory adress (getRegister x svm) svm
   _ -> error "invalid right argument structure"
 
---setRegWithAnyArgument :: Register -> Literal -> SVM
+printMemory :: Memory -> String
+printMemory = undefined
+
+
+-- | REGISTER FUNCTIONS
+setRegister :: Register -> Value -> SVMState -> SVMState
+setRegister reg value svm = case reg of
+    Reg1 -> svm { register1 = value }
+    Reg2 -> svm { register2 = value }
+    Reg3 -> svm { register3 = value }
+    Reg4 -> svm { register4 = value }
+
+getRegister :: Register -> SVMState -> Value
+getRegister reg svm = case reg of
+  Reg1 -> register1 svm
+  Reg2 -> register2 svm
+  Reg3 -> register3 svm
+  Reg4 -> register4 svm
+
+getAdressFromRegister :: Register -> SVMState -> Integer
+getAdressFromRegister reg svm = case getRegister reg svm of
+  (INT x) -> x
+  _ -> error "The register does not contain an Integer"
+
 setRegWithAnyArg :: Register -> Literal -> SVMState -> SVMState
 setRegWithAnyArg reg lit svm = case lit of
   (LitInt x) -> setRegister reg (INT x) svm
@@ -105,5 +98,5 @@ setRegWithAnyArg reg lit svm = case lit of
   (LitString x) -> setRegister reg (STRING x) svm
   (LitAdress (LitInt x)) -> setRegister reg (getMemory x svm) svm -- example: move contents from [2] to Reg 1
   (LitAdress (LitRegister x)) -> setRegister reg (getMemory(getAdressFromRegister x svm) svm) svm -- move contents from [reg1] to reg4
-  (LitRegister x) -> setRegister reg (getRegister x svm) svm -- setRegWithAnyArg Reg1 (LitRegister Reg2) emptySVMState
+  (LitRegister x) -> setRegister reg (getRegister x svm) svm
   _ -> error "invalid right argument structure"
