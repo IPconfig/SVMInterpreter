@@ -49,11 +49,13 @@ spec =
     -- | SVM Registers  
     describe "with SVM Registers" $ do
       it "set a SVM Register to a value" $ do
-        setRegister Reg1 (STRING("text")) testSVMState `shouldBe` SVMState {memory = [INT 0, DOUBLE 1.0,STRING "3",INT 4], register1 = STRING "text", register2 = DOUBLE 2.0, register3 = STRING "reg3", register4 = INT 0, programCounter = 0}
+        setRegister Reg1 (STRING("test")) testSVMState `shouldBe` SVMState {memory = [INT 0, DOUBLE 1.0,STRING "3",INT 4], register1 = STRING "test", register2 = DOUBLE 2.0, register3 = STRING "reg3", register4 = INT 0, programCounter = 0}
       it "return value from a SVM Register" $ do
         getRegister Reg3 testSVMState `shouldBe` (STRING "reg3")
       it "return a memory adress from SVM Register" $ do
-        getAdressFromRegister Reg1 emptySVMState `shouldBe` 0
+        getAdressFromRegister Reg1 testSVMState `shouldBe` 1 
+      it "Set a memory adress from SVM Register" $ do
+        trySetMemFromReg Reg4 (LitString "test") testSVMState `shouldBe` SVMState {memory = [STRING "test", DOUBLE 1.0,STRING "3",INT 4], register1 = INT 1, register2 = DOUBLE 2.0, register3 = STRING "reg3", register4 = INT 0, programCounter = 0}
       it "set Literal Int to SVM Register" $ do
         setRegWithAnyArg Reg1 (LitInt 9) testSVMState `shouldBe` SVMState {memory = [INT 0, DOUBLE 1.0,STRING "3",INT 4], register1 = INT 9, register2 = DOUBLE 2.0, register3 = STRING "reg3", register4 = INT 0, programCounter = 0}
       it "set Literal Double to SVM Register" $ do

@@ -92,6 +92,11 @@ getAdressFromRegister reg svm = case getRegister reg svm of
   (INT x) -> x
   _ -> error "The register does not contain an Integer"
 
+trySetMemFromReg :: Register -> Literal -> SVMState -> SVMState
+trySetMemFromReg reg lit svm = case getRegister reg svm of
+  (INT x) -> setMemWithAnyArg x lit svm
+  _ -> error "The register does not contain an Integer"
+
 setRegWithAnyArg :: Register -> Literal -> SVMState -> SVMState
 setRegWithAnyArg reg lit svm = case lit of
   (LitInt x) -> setRegister reg (INT x) svm
