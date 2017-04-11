@@ -109,7 +109,7 @@ setRegWithAnyArg reg lit svm = case lit of
   (LitInt x) -> setRegister reg (INT x) svm
   (LitFloat x) -> setRegister reg (DOUBLE x) svm
   (LitString x) -> setRegister reg (STRING x) svm
-  -- (LitAdress (LitInt x))
-  -- (LitAdress (LitRegister x))
+  (LitAdress (LitInt x)) -> setRegister reg (getMemory x svm) svm -- example: move contents from [2] to Reg 1
+  (LitAdress (LitRegister x)) -> setRegister reg (getMemory(getAdressFromRegister x svm) svm) svm -- move contents from [reg1] to reg4
   (LitRegister x) -> setRegister reg (getRegister x svm) svm -- setRegWithAnyArg Reg1 (LitRegister Reg2) emptySVMState
   _ -> error "invalid right argument structure"
