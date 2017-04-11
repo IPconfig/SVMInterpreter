@@ -23,8 +23,8 @@ emptySVMState :: SVMState
 emptySVMState = SVMState
     { memory = createMemory 10
     , register1 = INT 0
-    , register2 = STRING "Test"
-    , register3 = DOUBLE 0.0
+    , register2 = INT 0
+    , register3 = INT 0
     , register4 = INT 0
     , programCounter = 0
     } 
