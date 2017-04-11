@@ -1,5 +1,9 @@
-{-# LANGUAGE GADTs, StandaloneDeriving #-}
+{- ADT contains our Data Structures representing the constant values of the language (SVM)
+We change every instance of float in the ADT to Double since Float should be avoided in Haskell
+(see https://wiki.haskell.org/Performance/Floating_point) -}
+{-# LANGUAGE StandaloneDeriving #-}
 module ADT where
+
 -- Discriminated union for the 4 registers of the SVM
 data Register = Reg1
               | Reg2
@@ -8,8 +12,6 @@ data Register = Reg1
 deriving instance Show (Register)
 deriving instance Eq (Register)
 
--- We change every instance of float in the AST to Double since Float should be avoided (see https://wiki.haskell.org/Performance/Floating_point)
--- Data structures representing the constant values of the language. 
 -- Address may contain the Integer representing the memory address or the register from which the address is read.
 data Literal = LitInt Integer
              | LitFloat Double
@@ -20,8 +22,7 @@ data Literal = LitInt Integer
 deriving instance Show (Literal)
 deriving instance Eq (Literal)
 
--- Instructions supported by the SVM. See the documentation for further details.            
--- We still need address and Register somewhere            
+-- Instructions supported by the SVM. See the documentation for further details.        
 data Instruction = Nop
                 | Mov Literal Literal
                 | And Register Literal

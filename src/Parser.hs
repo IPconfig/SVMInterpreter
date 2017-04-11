@@ -1,12 +1,10 @@
-{-# LANGUAGE GADTs, StandaloneDeriving #-}
+-- | Parser parses a given String/File into the data structure defined in ADT
 module Parser where
-
 import ADT
 import Control.Monad (void)
 import Text.Megaparsec -- megaparsec generates parsers and can chain them together
 import Text.Megaparsec.Expr
 import Text.Megaparsec.String -- input stream is of type ‘String’. We can optimize our parser by using Data.Text instead
--- import System.Environment (getArgs)
 import qualified Text.Megaparsec.Lexer as L
 
 

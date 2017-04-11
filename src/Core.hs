@@ -1,3 +1,4 @@
+-- | Core implements all SVMState manipulations (Memory and Registers)
 module Core where
 import ADT
 
@@ -32,7 +33,7 @@ createMemory :: Int -> Memory
 createMemory n = replicate n (INT 0)
 
 readMemory :: Integer -> Memory -> Value
-readMemory _ [] = error "empty memory. This should never happen" -- runtime exception
+readMemory _ [] = error "empty memory. This should never happen"
 readMemory y (x:xs) | y <= 0 = x -- Start index at 0
                              | otherwise = readMemory (y-1) xs
 

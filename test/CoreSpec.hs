@@ -24,6 +24,8 @@ spec =
         readMemory 2 [INT 0, DOUBLE 0.0, STRING "String"] `shouldBe` (STRING "String")
       it "create an empty SVM State" $ do
         emptySVMState `shouldBe` SVMState {memory = [INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0], register1 = INT 0, register2 = INT 0, register3 = INT 0, register4 = INT 0, programCounter = 0}
+
+    -- | SVM Memory
     describe "with SVM Memory" $ do
       it "set value to SVM memory" $ do
         setMemory 2 (DOUBLE 8.5) testSVMState `shouldBe` SVMState {memory = [INT 0, DOUBLE 1.0,DOUBLE 8.5,INT 4], register1 = INT 1, register2 = DOUBLE 2.0, register3 = STRING "reg3", register4 = INT 0, programCounter = 0}
@@ -41,7 +43,9 @@ spec =
         setMemWithAnyArg 0 (LitAdress (LitRegister Reg1)) testSVMState `shouldBe` SVMState {memory = [DOUBLE 1.0, DOUBLE 1.0,STRING "3",INT 4], register1 = INT 1, register2 = DOUBLE 2.0, register3 = STRING "reg3", register4 = INT 0, programCounter = 0}
       it "set Literal register to SVM memory" $ do
         setMemWithAnyArg 0 (LitRegister Reg3) testSVMState `shouldBe` SVMState {memory = [STRING "reg3", DOUBLE 1.0,STRING "3",INT 4], register1 = INT 1, register2 = DOUBLE 2.0, register3 = STRING "reg3", register4 = INT 0, programCounter = 0}
-    describe "with SVM Registry" $ do
+
+    -- | SVM Registers  
+    describe "with SVM Registers" $ do
       it "set a SVM Register to a value" $ do
         setRegister Reg1 (STRING("text")) testSVMState `shouldBe` SVMState {memory = [INT 0, DOUBLE 1.0,STRING "3",INT 4], register1 = STRING "text", register2 = DOUBLE 2.0, register3 = STRING "reg3", register4 = INT 0, programCounter = 0}
       it "return value from a SVM Register" $ do
