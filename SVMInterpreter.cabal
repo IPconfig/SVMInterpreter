@@ -21,6 +21,7 @@ library
   exposed-modules:     Lib
                      , ADT
                      , Parser
+                     , Core
   build-depends:       base >= 4.7 && < 5
                      , megaparsec
 
