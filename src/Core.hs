@@ -8,7 +8,7 @@ instance Show Value where
   show (STRING x) = show x
   
 type Memory = [Value]
-data SVMState = SVMState { memory :: [Value]
+data SVMState = SVMState { memory :: Memory
                          , register1   :: Value
                          , register2   :: Value
                          , register3   :: Value
