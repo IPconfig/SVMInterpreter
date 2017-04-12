@@ -256,14 +256,15 @@ instruction = parens instruction  <|> instructionProgram
 whileParser :: Parser Instruction
 whileParser = between spaceConsumer eof instruction --remove initial whitespcace since we only remove after the tokens
 
-
-
+-- usage | parseFile "test.svm"
 parseFile :: FilePath -> IO ()
 parseFile filename = do
---  [filename] <- getArgs
-  jsonstring <- readFile filename
-  case (parse whileParser "" jsonstring) of
+  svmCode <- readFile filename
+  case (parse whileParser "" svmCode) of
     Left err -> putStr (parseErrorPretty err)
-    Right json -> print json-- mainFileParser filename = do
+    Right results -> print results
+
+-- mainFileParser :: String -> IO [Grammar.ProgramLine]
+-- mainFileParser filename = do
 --     f <- readFile filename
 --     return $ map mainParser (lines f)
