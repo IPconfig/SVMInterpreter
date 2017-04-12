@@ -27,7 +27,7 @@ spec =
       it "returns a register" $ do
         runParser parseRegister "" "reg1" `shouldBe` Right Reg1
     describe "with literals" $ do
-      it "returns a literal int" $ do
+      it "returns a literal Integer" $ do
         runParser parseLitInt "" "15" `shouldBe` Right (LitInt 15)
       it "returns a literal float/double" $ do
         runParser parseLitFloat "" "15.5" `shouldBe` Right (LitFloat 15.5)
@@ -39,8 +39,12 @@ spec =
         runParser parseMemoryAdressOrReference "" "[reg1]" `shouldBe` Right (LitAdress (LitRegister Reg1))
       it "return a literal Register" $ do
           runParser parseLitRegister "" "reg1" `shouldBe` Right (LitRegister Reg1)
+      it "returns a negative literal Integer" $ do
+        negate' (LitInt 5) `shouldBe` (LitInt (-5))
+      it "returns a negative literal Double" $ do
+        negate' (LitFloat 5.5) `shouldBe` (LitFloat (-5.5))
     describe "with literalParser" $ do
-      it "returns a negative literal int" $ do
+      it "returns a negative literal Integer" $ do
         runParser parseLiteral "" "-15" `shouldBe` Right (LitInt (-15))
       it "returns a negative literal float/double" $ do
         runParser parseLiteral "" "-15.5" `shouldBe` Right (LitFloat (-15.5))
