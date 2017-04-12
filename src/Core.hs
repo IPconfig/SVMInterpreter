@@ -1,4 +1,5 @@
 -- | Core implements all SVMState manipulations (Memory and Registers)
+{-# LANGUAGE RecordWildCards #-} -- Enable this extension so we dont have to write every field in a record, but can simply use '..'
 module Core where
 import ADT
 
@@ -43,19 +44,9 @@ getMemory adress SVMState {memory = mem}
   =  readMemory adress mem
 
 setMemory :: Integer -> Value -> SVMState -> SVMState
-setMemory adress value SVMState{memory = mem
-  , register1 = sreg1
-  , register2 = sreg2
-  , register3 = sreg3
-  , register4 = sreg4
-  , programCounter = spc }
+setMemory adress value svm@(SVMState{ memory = mem })
   | adress < (toInteger (length mem)) = case splitAt (fromInteger(adress)) mem of
-                                 (front, back) -> SVMState { memory = front ++ value : (tail back)
-                                 , register1 = sreg1
-                                 , register2 = sreg2
-                                 , register3 = sreg3
-                                 , register4 = sreg4
-                                 , programCounter = spc }
+                                 (front, back) -> svm { memory = front ++ value : (tail back)}
    | otherwise = error "memory adress out of bounds"
                                   
 setMemWithAnyArg :: Integer -> Literal -> SVMState -> SVMState
@@ -108,15 +99,4 @@ setRegWithAnyArg reg lit svm = case lit of
   _ -> error "invalid right argument structure"
 
 updateProgramCounter :: SVMState -> SVMState
-updateProgramCounter SVMState { memory = mem
-                              , register1 = sreg1
-                              , register2 = sreg2
-                              , register3 = sreg3
-                              , register4 = sreg4
-                              , programCounter = spc } 
-                              = SVMState { memory = mem
-                                          , register1 = sreg1
-                                          , register2 = sreg2
-                                          , register3 = sreg3
-                                          , register4 = sreg4
-                                          , programCounter = spc + 1 }
+updateProgramCounter svm@(SVMState { .. }) = svm {programCounter = programCounter + 1 }
