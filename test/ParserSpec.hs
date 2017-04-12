@@ -18,8 +18,6 @@ spec =
         runParser parseDouble "" "15.12345" `shouldBe` Right 15.12345
       it "returns one word" $ do
         runParser parseWord "" "sampleWord" `shouldBe` Right "sampleWord"
-      it "returns multiple words" $ do
-        runParser parseWords "" "sampleWord sampleWord2" `shouldBe` Right ["sampleWord", "sampleWord2"]
       it "returns an identifier" $ do
         runParser parseId "" "h98_0e" `shouldBe` Right "h98_0e"
       it "returns a label" $ do

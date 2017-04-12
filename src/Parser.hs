@@ -38,10 +38,6 @@ parseWord = parseLexeme $ (some alphaNumChar)
 rword :: String -> Parser ()
 rword w = string w *> notFollowedBy alphaNumChar *> spaceConsumer
 
--- | 'parseWords' parses multiple words
-parseWords :: Parser [String]
-parseWords = some parseWord
-
 -- | 'parseId' parses an identitifier
 parseId :: Parser String
 parseId = parseLexeme $ do 
