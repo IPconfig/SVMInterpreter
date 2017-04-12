@@ -114,8 +114,18 @@ parseLiteral = makeExprParser litTerm litOperators <* spaceConsumer -- Empty ope
 
 litOperators :: [[Operator Parser Literal]]
 litOperators =
-  [ -- [Prefix (Neg <$ parseSymbol "-") ]
-  ]
+   [ 
+     [prefix "-" negate']
+   ]
+  where 
+    prefix symbol fun = Prefix ( fun <$ parseSymbol symbol)
+
+negate' :: Literal -> Literal
+negate' input = case input of 
+  (LitInt x) -> (LitInt (0 - x))
+  (LitFloat x) -> (LitFloat(0.0 -x))
+  _ -> error "trying to appy (-) to something other then a numeric value"
+
 
 litTerm :: Parser Literal
 litTerm = parens parseLiteral
@@ -254,4 +264,6 @@ parseFile filename = do
   jsonstring <- readFile filename
   case (parse whileParser "" jsonstring) of
     Left err -> putStr (parseErrorPretty err)
-    Right json -> print json
+    Right json -> print json-- mainFileParser filename = do
+--     f <- readFile filename
+--     return $ map mainParser (lines f)

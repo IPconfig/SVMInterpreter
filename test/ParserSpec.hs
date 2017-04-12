@@ -37,8 +37,21 @@ spec =
         runParser parseMemoryAdressOrReference "" "[15]" `shouldBe` Right (LitAdress (LitInt 15))
       it "retuns a Register Reference" $ do
         runParser parseMemoryAdressOrReference "" "[reg1]" `shouldBe` Right (LitAdress (LitRegister Reg1))
-      it "returns a literal Register" $ do
+      it "return a literal Register" $ do
           runParser parseLitRegister "" "reg1" `shouldBe` Right (LitRegister Reg1)
+    describe "with literalParser" $ do
+      it "returns a negative literal int" $ do
+        runParser parseLiteral "" "-15" `shouldBe` Right (LitInt (-15))
+      it "returns a negative literal float/double" $ do
+        runParser parseLiteral "" "-15.5" `shouldBe` Right (LitFloat (-15.5))
+      it "returns a literal string" $ do
+        runParser parseLiteral "" "sampleWord" `shouldBe` Right (LitString "sampleWord")
+      it "returns a memory adress" $ do
+        runParser parseLiteral "" "[15]" `shouldBe` Right (LitAdress (LitInt 15))
+      it "retuns a Register Reference" $ do
+        runParser parseLiteral "" "[reg1]" `shouldBe` Right (LitAdress (LitRegister Reg1))
+      it "return a literal Register" $ do
+          runParser parseLiteral "" "reg1" `shouldBe` Right (LitRegister Reg1)
     describe "with instructions" $ do
       it "returns instruction (Nop)" $ do
         runParser instruction' "" "nop" `shouldBe` Right (Nop)
