@@ -2,7 +2,6 @@
 {-# LANGUAGE RecordWildCards #-} -- Enable this extension so we dont have to write every field in a record, but can simply use '..'
 module Core where
 import ADT
-import Data.List
 
 data Value = INT Integer | DOUBLE Double | STRING String deriving (Eq)
 instance Show Value where
@@ -60,16 +59,11 @@ setMemWithAnyArg adress lit svm = case lit of
   (LitRegister x) -> setMemory adress (getRegister x svm) svm
   _ -> error "invalid right argument structure"
 
-memoryToString :: Memory -> [String]
-memoryToString mem = map show mem
-
-format :: [String] -> [String]
-format list = zip list (cycle [1 :: Integer ..10]) >>= function where -- Create cyclic indexes from 1 till 10
-  function (x,k) = if k == 10 then [x,"\n"] else [x, "\t"] -- If 10th index, add "\n", else "\t"
-
 printMemory :: Memory -> IO ()
-printMemory mem = mapM_ putStr $ format $ memoryToString mem
-
+printMemory mem = mapM_ putStr $ format $ memoryToString where
+  memoryToString = map show mem  
+  format list = zip list (cycle [1 :: Integer ..10]) >>= function where -- Create cyclic indexes from 1 till 10
+    function (x,k) = if k == 10 then [x,"\n"] else [x, "\t"] -- If 10th index, add "\n", else "\t"
 
 -- | REGISTER FUNCTIONS
 setRegister :: Register -> Value -> SVMState -> SVMState
