@@ -103,3 +103,16 @@ setRegWithAnyArg reg lit svm = case lit of
 -- | OTHER FUNCTIONS
 updateProgramCounter :: SVMState -> SVMState
 updateProgramCounter svm@(SVMState { .. }) = svm {programCounter = programCounter + 1 }
+
+-- | 'getBinaryValues' returns a tuple containing the Value-datatype from a stored value in register and the Literal definition
+getBinaryValues :: Register -> Literal -> SVMState -> (Value, Value)
+getBinaryValues reg literal svm = (arg1, arg2)
+  where arg1 = getRegister reg svm
+        arg2 = case literal of
+             (LitInt x) -> (INT x)
+             (LitFloat x) -> (DOUBLE x)
+             (LitString x) -> (STRING x)
+             (LitAdress (LitInt x)) -> (getMemory x svm) -- example: move contents from [2] to Reg 1
+             (LitAdress (LitRegister x)) -> (getMemory(getAdressFromRegister x svm) svm) -- move contents from [reg1] to reg4
+             (LitRegister x) -> (getRegister x svm)
+             _ -> error "invalid binary operator argument"
