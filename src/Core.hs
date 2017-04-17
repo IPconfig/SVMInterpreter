@@ -95,10 +95,11 @@ setRegWithAnyArg reg lit svm = case lit of
   (LitInt x) -> setRegister reg (INT x) svm
   (LitFloat x) -> setRegister reg (DOUBLE x) svm
   (LitString x) -> setRegister reg (STRING x) svm
-  (LitAdress (LitInt x)) -> setRegister reg (getMemory x svm) svm -- example: move contents from [2] to Reg 1
-  (LitAdress (LitRegister x)) -> setRegister reg (getMemory(getAdressFromRegister x svm) svm) svm -- move contents from [reg1] to reg4
+  (LitAdress (LitInt x)) -> setRegister reg (getMemory x svm) svm
+  (LitAdress (LitRegister x)) -> setRegister reg (getMemory(getAdressFromRegister x svm) svm) svm
   (LitRegister x) -> setRegister reg (getRegister x svm) svm
   _ -> error "invalid right argument structure"
 
+-- | OTHER FUNCTIONS
 updateProgramCounter :: SVMState -> SVMState
 updateProgramCounter svm@(SVMState { .. }) = svm {programCounter = programCounter + 1 }
