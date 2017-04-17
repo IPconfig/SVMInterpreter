@@ -16,7 +16,6 @@ deriving instance Eq (Register)
 data Literal = LitInt Integer
              | LitFloat Double
              | LitString String
---             | Neg Literal
              | LitAdress Literal
              | LitRegister Register
 deriving instance Show (Literal)
@@ -37,7 +36,7 @@ data Instruction = Nop
                 | Jmp String
                 | Jc String Register
                 | Jeq String Register
-                | LabelI String
+                | Label String
                 | Program [Instruction]
 deriving instance Show (Instruction)
 deriving instance Eq (Instruction)

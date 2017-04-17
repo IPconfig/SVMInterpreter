@@ -2,7 +2,7 @@
 module Parser where
 import ADT
 import Control.Monad (void)
-import Text.Megaparsec -- megaparsec generates parsers and can chain them together
+import Text.Megaparsec hiding (Label)-- megaparsec generates parsers and can chain them together
 import Text.Megaparsec.Expr
 import Text.Megaparsec.String -- input stream is of type ‘String’. We can optimize our parser by using Data.Text instead
 import qualified Text.Megaparsec.Lexer as L
@@ -229,7 +229,7 @@ jeqE = do
 labelE :: Parser Instruction
 labelE = do
   e <- parseLabel
-  return (LabelI e)
+  return (Label e)
 
 instructionProgram :: Parser Instruction
 instructionProgram = f <$> sepBy1 instruction' (many $ oneOf "\n") -- Seperate instructions by newline
