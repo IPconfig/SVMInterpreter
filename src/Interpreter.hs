@@ -48,10 +48,10 @@ eval svm instruction = case instruction of
         | x < y     = setRegister arg1 (INT (-1)) (updateProgramCounter svm)
         | x == y    = setRegister arg1 (INT 0) (updateProgramCounter svm)
         | otherwise = setRegister arg1 (INT 1) (updateProgramCounter svm)
-  Label label-> svm -- do Nothing
-  Jmp label -> svm
-  Jc label register -> svm
-  Jeq label register -> svm
+  Label _label-> svm -- do Nothing
+  Jmp _label -> svm
+  Jc _label _register -> svm
+  Jeq _label _register -> svm
   Program instructions -> eval' instructions svm
 
 -- helper for Programs that has a list of instructions. Evaluate instructions one at a time
