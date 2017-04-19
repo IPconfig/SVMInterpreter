@@ -1,9 +1,11 @@
 module Interpreter where
 import Core
 import ADT
+import Parser
+import Text.Megaparsec hiding (label, Label)
 
-eval :: Instruction -> SVMState -> SVMState
-eval instruction svm = case instruction of
+eval :: SVMState -> Instruction -> SVMState
+eval svm instruction = case instruction of
   Nop -> updateProgramCounter svm
   Mov arg1 arg2 -> case arg1 of -- Mov (LitAdress(LitInt 10)) (LitInt 5)
     (LitAdress (LitInt x)) -> setMemWithAnyArg x arg2 svm
@@ -52,3 +54,8 @@ eval instruction svm = case instruction of
   Jmp label -> svm
   Jc label register -> svm
   Jeq label register -> svm
+  Program instructions -> eval' instructions svm
+
+-- helper for Programs that has a list of instructions. Evaluate instructions one at a time
+eval' :: [Instruction] -> SVMState -> SVMState
+eval' instructions svm =  foldl eval svm instructions
