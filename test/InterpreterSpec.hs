@@ -67,3 +67,5 @@ spec =
         eval testSVMState (Cmp Reg2 (LitFloat 2.0)) `shouldBe` SVMState {memory = [INT 0, DOUBLE 1.0,STRING "3",INT 4], register1 = INT 1, register2 = INT 0, register3 = STRING "reg3", register4 = INT 0, programCounter = 1}
       it "with x > y" $ do
         eval testSVMState (Cmp Reg2 (LitFloat 1.0)) `shouldBe` SVMState {memory = [INT 0, DOUBLE 1.0,STRING "3",INT 4], register1 = INT 1, register2 = INT 1, register3 = STRING "reg3", register4 = INT 0, programCounter = 1}
+    it "evaluate Program" $ do
+      eval testSVMState (Program [Nop,Mov (LitAdress (LitInt 1)) (LitInt 5),Mov (LitRegister Reg1) (LitAdress (LitInt 1)),Mov (LitRegister Reg2) (LitInt 0)]) `shouldBe` SVMState {memory = [INT 0, INT 5,STRING "3",INT 4], register1 = INT 5, register2 = INT 0, register3 = STRING "reg3", register4 = INT 0, programCounter = 4}
