@@ -53,3 +53,12 @@ parseAndEval' config@(Config file _) = do
   case (parse whileParser "" svmFile) of
     Left err -> putStr (parseErrorPretty err)
     Right parsedResults -> printSVM $ eval (initialized config) parsedResults
+
+
+-- parseAndEval
+parseAndEval :: FilePath -> IO()
+parseAndEval filename' = do
+  svmFile <- readFile filename'
+  case (parse whileParser "" svmFile) of
+    Left err -> putStr (parseErrorPretty err)
+    Right parsedResults -> printSVM $ eval emptySVMState parsedResults

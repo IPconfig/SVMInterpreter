@@ -1,8 +1,6 @@
 module Interpreter where
 import Core
 import ADT
-import Parser
-import Text.Megaparsec hiding (label, Label)
 
 eval :: SVMState -> Instruction -> SVMState
 eval svm instruction = case instruction of
