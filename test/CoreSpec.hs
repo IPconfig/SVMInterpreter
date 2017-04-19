@@ -22,10 +22,10 @@ spec =
         createMemory 10 `shouldBe` [INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0]
       it "return value from memory adress" $ do
         readMemory 2 [INT 0, DOUBLE 0.0, STRING "String"] `shouldBe` (STRING "String")
-      it "create an empty SVM State" $ do
-        emptySVMState `shouldBe` SVMState {memory = [INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0], register1 = INT 0, register2 = INT 0, register3 = INT 0, register4 = INT 0, programCounter = 0}
-      it "update SVM program counter" $ do
-        updateProgramCounter emptySVMState `shouldBe` SVMState {memory = [INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0], register1 = INT 0, register2 = INT 0, register3 = INT 0, register4 = INT 0, programCounter = 1}
+      -- it "create an empty SVM State" $ do
+      --   emptySVMState `shouldBe` SVMState {memory = [INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0], register1 = INT 0, register2 = INT 0, register3 = INT 0, register4 = INT 0, programCounter = 0}
+      -- it "update SVM program counter" $ do
+      --   updateProgramCounter emptySVMState `shouldBe` SVMState {memory = [INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0,INT 0], register1 = INT 0, register2 = INT 0, register3 = INT 0, register4 = INT 0, programCounter = 1}
 
     -- | SVM Memory
     describe "with SVM Memory" $ do

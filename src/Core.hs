@@ -9,7 +9,8 @@ instance Show Value where
   show (DOUBLE x) = show x
   show (STRING x) = show x
   
-type Memory = [Value]
+type Memory = [Value] 
+
 data SVMState = SVMState { memory :: Memory
                          , register1   :: Value
                          , register2   :: Value
@@ -20,9 +21,25 @@ data SVMState = SVMState { memory :: Memory
 --                         , Stack  ::  Map<string,List<Value>> 
                          } deriving (Eq, Show)
 
+printSVM :: SVMState -> IO()
+printSVM SVMState {memory = mem
+                  , register1 = sreg1
+                  , register2 = sreg2
+                  , register3 = sreg3
+                  , register4 = sreg4
+                  , programCounter = spc } = do
+  putStrLn "MEMORY:"
+  printMemory mem
+  putStrLn "\n=============="
+  putStrLn "REGISTERS:"
+  putStrLn $ show sreg1 ++ "\t" ++ show sreg2 ++ "\t" ++ show sreg3 ++ "\t" ++ show sreg4
+  putStrLn "\n=============="
+  putStrLn "PROGRAMCOUNTER:" 
+  putStrLn $ show spc
+
 emptySVMState :: SVMState
 emptySVMState = SVMState
-    { memory = createMemory 10
+    { memory = createMemory 20
     , register1 = INT 0
     , register2 = INT 0
     , register3 = INT 0
