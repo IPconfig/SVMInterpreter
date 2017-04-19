@@ -33,6 +33,7 @@ executable SVMInterpreter
   build-depends:       base
                      , SVMInterpreter
                      , megaparsec
+                     , optparse-applicative
 
 test-suite spec
   default-language:    Haskell2010

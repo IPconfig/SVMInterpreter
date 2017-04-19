@@ -1,0 +1,7 @@
+nop
+//initialize the variable x for testing
+mov [15] 5
+//move the content of address 15 in reg1
+mov reg1 [15]
+//move the constant 0 in reg2
+mov reg2 0 
